@@ -447,12 +447,44 @@ function checkAnswer() {
 
 // --- EVENTS ---
 
+// --- EVENTS ---
+
 window.addEventListener('keydown', (e) => {
     if (state.mode === 'DRIVING') {
         if (e.key === 'ArrowUp') userCar.targetY = 120;
         if (e.key === 'ArrowDown') userCar.targetY = 180;
     }
     if (e.key === 'Enter' && state.mode === 'QUIZ') checkAnswer();
+});
+
+// Touch Controls for Mobile
+canvas.addEventListener('touchstart', (e) => {
+    if (state.mode !== 'DRIVING') return;
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches[0];
+    const touchY = touch.clientY - rect.top;
+    const canvasHeight = rect.height;
+
+    if (touchY < canvasHeight / 2) {
+        userCar.targetY = 120;
+    } else {
+        userCar.targetY = 180;
+    }
+}, { passive: false });
+
+// Support for Mouse Click as fallback touch
+canvas.addEventListener('mousedown', (e) => {
+    if (state.mode !== 'DRIVING') return;
+    const rect = canvas.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const canvasHeight = rect.height;
+
+    if (clickY < canvasHeight / 2) {
+        userCar.targetY = 120;
+    } else {
+        userCar.targetY = 180;
+    }
 });
 
 // --- INITIALIZATION ---
