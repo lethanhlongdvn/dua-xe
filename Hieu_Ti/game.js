@@ -515,7 +515,8 @@ async function showLeaderboard() {
 
         if (!error && data) {
             html = data.map((s, i) => {
-                const parts = s.player_name.split(' - ');
+                const pName = s.player_name || "Ẩn danh - KĐ";
+                const parts = pName.split(' - ');
                 const name = parts[0] || "Ẩn danh";
                 const className = parts[1] || "KĐ";
                 const mins = Math.floor(s.score_time / 60).toString().padStart(2, '0');
