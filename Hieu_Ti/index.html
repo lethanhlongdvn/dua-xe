@@ -8,10 +8,15 @@
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Inter:wght@400;600&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
     <div id="game-container">
+        <div id="nav-top">
+            <a href="../index.html" class="home-btn">🏠 TRANG CHỦ</a>
+            <div id="top-scores-preview">KỶ LỤC: <span id="best-time">--:--</span></div>
+        </div>
         <!-- Game Canvas Area -->
         <div id="canvas-wrapper">
             <canvas id="gameCanvas"></canvas>
@@ -36,8 +41,16 @@
             <div id="finish-screen" class="overlay hidden">
                 <div class="glass-panel">
                     <h1 class="win-title">CHIẾN THẮNG! 🏆</h1>
-                    <p>Bạn đã vượt qua tất cả 10 thử thách.</p>
+                    <p>Thời gian của bạn: <span id="final-time" class="highlight">00:00</span></p>
+                    <div id="leaderboard">
+                        <h2>🏆 TOP 5 KỶ LỤC</h2>
+                        <ul id="score-list">
+                            <!-- Scores inject here -->
+                        </ul>
+                    </div>
                     <button id="restart-btn" class="main-btn">CHƠI LẠI</button>
+                    <a href="../index.html" class="main-btn" style="text-decoration: none; display: inline-block;">MENU
+                        CHÍNH</a>
                 </div>
             </div>
         </div>
