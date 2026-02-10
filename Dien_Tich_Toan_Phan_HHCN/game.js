@@ -1,17 +1,24 @@
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+console.log("--- SCRIPT START: HHCN/game.js v2 ---");
 
-// Set internal resolution
-canvas.width = 1000;
-canvas.height = 380;
+window.onerror = function (msg, url, line) {
+    console.warn("Lỗi HHCN: " + msg + " tại dòng " + line);
+    return false;
+};
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = (canvas) ? canvas.getContext('2d') : null;
+if (canvas && ctx) {
+    canvas.width = 1000;
+    canvas.height = 380;
+}
 
 // --- SUPABASE CONFIG ---
 const supabaseUrl = 'https://khrucxyrvtprykaatcjn.supabase.co';
 const supabaseKey = 'sb_publishable_Nn8HTw3Nxau96UR068_E7g_Mbv3Km66';
-let supabase = null;
+let supabaseClient = null;
 try {
     if (window.supabase) {
-        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
     }
 } catch (e) {
     console.error("Supabase Init Error:", e);
@@ -93,21 +100,18 @@ class Car {
 
     update() {
         this.y += (this.targetY - this.y) * 0.1;
-
-        // Add light trails (Adjusted for larger size)
         if (state.speed > 1) {
-            this.trails.push({ x: this.x + 30, y: this.y + 20, life: 25, color: 'rgba(255, 204, 0, 0.6)' });
-            this.trails.push({ x: this.x + 30, y: this.y + 75, life: 25, color: 'rgba(255, 100, 0, 0.6)' });
+            this.trails.push({ x: this.x + 30, y: this.y + 40, life: 25, color: 'rgba(255, 204, 0, 0.6)' });
+            this.trails.push({ x: this.x + 30, y: this.y + 80, life: 25, color: 'rgba(255, 100, 0, 0.6)' });
         }
         this.trails.forEach((t, i) => {
-            t.x -= state.speed * 2; // Match road speed
+            t.x -= state.speed * 2;
             t.life--;
             if (t.life <= 0) this.trails.splice(i, 1);
         });
     }
 
     draw() {
-        // Draw Light Trails
         this.trails.forEach(t => {
             ctx.fillStyle = t.color;
             ctx.globalAlpha = t.life / 25;
@@ -119,75 +123,12 @@ class Car {
         ctx.translate(this.x, this.y);
 
         if (state.assets.isCarLoaded) {
-            // Draw Loaded Image Car
             ctx.drawImage(state.assets.carImage, 0, 0, this.w, this.h);
         } else {
-            // --- Fallback Cyber Car (Scaled Up) ---
-            const shadowGrad = ctx.createRadialGradient(110, 85, 10, 110, 85, 140);
-            shadowGrad.addColorStop(0, 'rgba(0,0,0,0.8)');
-            shadowGrad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = shadowGrad;
-            ctx.beginPath();
-            ctx.ellipse(110, 85, 130, 25, 0, 0, Math.PI * 2);
-            ctx.fill();
-
-            const bodyGrad = ctx.createLinearGradient(0, 15, 0, 80);
-            bodyGrad.addColorStop(0, '#111');
-            bodyGrad.addColorStop(0.5, '#222');
-            bodyGrad.addColorStop(1, '#050505');
-
-            ctx.fillStyle = bodyGrad;
-            ctx.beginPath();
-            ctx.moveTo(0, 40);
-            ctx.bezierCurveTo(55, 15, 165, 15, 215, 40);
-            ctx.lineTo(220, 60);
-            ctx.bezierCurveTo(165, 90, 55, 90, 0, 60);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = '#ffcc00';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 20;
-            ctx.shadowColor = '#ffcc00';
-            ctx.beginPath();
-            ctx.moveTo(15, 45);
-            ctx.lineTo(95, 25);
-            ctx.lineTo(195, 25);
-            ctx.lineTo(215, 45);
-            ctx.stroke();
-
-            ctx.strokeStyle = '#ff6600';
-            ctx.shadowColor = '#ff6600';
-            ctx.beginPath();
-            ctx.moveTo(15, 60);
-            ctx.lineTo(195, 75);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-            ctx.beginPath();
-            ctx.moveTo(10, 45);
-            ctx.lineTo(140, 55);
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = 'rgba(0, 242, 255, 0.15)';
-            ctx.beginPath();
-            ctx.moveTo(50, 20);
-            ctx.lineTo(100, 20);
-            ctx.lineTo(120, 35);
-            ctx.lineTo(40, 35);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(20, -10, 40, 15);
-            ctx.fillRect(110, -5, 30, 10);
-            ctx.fillRect(20, 60, 40, 15);
-            ctx.fillRect(110, 60, 30, 10);
-
-            ctx.strokeStyle = '#ffcc00';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(20, -10, 40, 15);
-            ctx.strokeRect(20, 60, 40, 15);
+            ctx.fillStyle = '#ffcc00';
+            ctx.fillRect(0, 60, 220, 60);
+            ctx.fillStyle = '#ff6600';
+            ctx.fillRect(40, 30, 120, 40);
         }
 
         ctx.restore();
@@ -505,7 +446,7 @@ function init() {
     console.log("Initialization started...");
     const startBtn = document.getElementById('start-btn');
     if (startBtn) {
-        startBtn.onclick = startGame;
+        console.log("Start button found");
     }
 
     const submitBtn = document.getElementById('submit-btn');
@@ -528,10 +469,11 @@ if (document.readyState === 'complete') {
     window.addEventListener('load', init);
 }
 
-window.startGame = startGame;
+// Make realStartGame global
+window.realStartGame = realStartGame;
 
-function startGame() {
-    console.log("startGame function called");
+function realStartGame() {
+    console.log("realStartGame function called");
     try {
         const nameInputEl = document.getElementById('player-name');
         const classSelectEl = document.getElementById('player-class');
@@ -557,11 +499,15 @@ function startGame() {
         state.playerClass = classSelect;
 
         state.mode = 'DRIVING';
+        state.targetSpeed = 8;
         state.startTime = Date.now();
         state.gameStartTime = Date.now();
 
         const startScreen = document.getElementById('start-screen');
-        if (startScreen) startScreen.classList.add('hidden');
+        if (startScreen) {
+            startScreen.style.display = 'none';
+            startScreen.classList.add('hidden');
+        }
 
         if (state.assets.engineSound) {
             state.assets.engineSound.play().catch(e => console.log("Audio play blocked"));
@@ -583,9 +529,9 @@ async function saveHighScore(time) {
     localStorage.setItem(SCORE_LOCAL_KEY, JSON.stringify(locals.slice(0, 10)));
 
     // 2. Lưu online tự động
-    if (supabase) {
+    if (supabaseClient) {
         const fullDisplay = `${state.playerName} - ${state.playerClass}`;
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('high_scores')
             .insert([{ game_id: GAME_ID, player_name: fullDisplay, score_time: time }]);
 
@@ -600,8 +546,8 @@ async function showLeaderboard() {
 
     let html = '';
 
-    if (supabase) {
-        const { data, error } = await supabase
+    if (supabaseClient) {
+        const { data, error } = await supabaseClient
             .from('high_scores')
             .select('player_name, score_time')
             .eq('game_id', GAME_ID)
@@ -651,8 +597,8 @@ async function showLeaderboard() {
 
 async function updateBestTimePreview() {
     let best;
-    if (supabase) {
-        const { data } = await supabase
+    if (supabaseClient) {
+        const { data } = await supabaseClient
             .from('high_scores')
             .select('score_time')
             .eq('game_id', GAME_ID)
