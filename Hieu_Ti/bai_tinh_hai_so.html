@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài tập tìm hai số khi biết tổng và tỉ số</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 36px;
+        }
+        
+        .problem {
+            margin-bottom: 35px;
+            padding: 30px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            background-color: #fafafa;
+        }
+        
+        .problem-title {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .problem-content {
+            margin-bottom: 20px;
+            line-height: 1.8;
+            font-size: 22px;
+        }
+        
+        .answer-section {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .answer-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .answer-label {
+            font-weight: bold;
+            color: #555;
+            min-width: 120px;
+            font-size: 20px;
+        }
+        
+        .answer-input {
+            padding: 12px 16px;
+            border: 3px solid #3498db;
+            border-radius: 8px;
+            width: 140px;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .answer-input:focus {
+            outline: none;
+            border-color: #2980b9;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+        }
+        
+        .check-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        
+        .check-btn:hover {
+            background-color: #229954;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+            font-size: 18px;
+        }
+        
+        .correct {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .incorrect {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57);
+            background-size: 500% 500%;
+            animation: confetti-fall 3s linear, confetti-color 2s ease-in-out infinite;
+            z-index: 9999;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes confetti-color {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        .praise-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 60px;
+            border-radius: 25px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 10000;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+            animation: praise-appear 0.5s ease-out;
+        }
+        
+        @keyframes praise-appear {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .encouragement-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 35px 50px;
+            border-radius: 20px;
+            font-size: 28px;
+            text-align: center;
+            z-index: 10000;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+            animation: encouragement-appear 0.5s ease-out;
+        }
+        
+        @keyframes encouragement-appear {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .fraction {
+            display: inline-block;
+            vertical-align: middle;
+            text-align: center;
+        }
+        
+        .fraction-up {
+            display: block;
+            border-bottom: 2px solid;
+            padding: 0 6px;
+            font-size: 20px;
+        }
+        
+        .fraction-down {
+            display: block;
+            padding: 0 6px;
+            font-size: 20px;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .reset-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BÀI TẬP TÌM HAI SỐ KHI BIẾT TỔNG VÀ TỈ SỐ</h1>
+        
+        <div class="problem">
+            <div class="problem-title">Bài 1:</div>
+            <div class="problem-content">
+                Tổng của hai số là 31,5. Tỉ số của hai số đó là 
+                <span class="fraction">
+                    <span class="fraction-up">3</span>
+                    <span class="fraction-down">2</span>
+                </span>
+                . Tìm hai số đó.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Số bé:</span>
+                    <input type="number" class="answer-input" id="1_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Số lớn:</span>
+                    <input type="number" class="answer-input" id="1_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(1, [12.6, 18.9])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(1)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_1"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 2:</div>
+            <div class="problem-content">
+                Hai thùng dầu chứa tổng cộng 82,5 lít. Số dầu thùng thứ nhất bằng 
+                <span class="fraction">
+                    <span class="fraction-up">1</span>
+                    <span class="fraction-down">4</span>
+                </span>
+                số dầu thùng thứ hai. Tính số dầu mỗi thùng.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Thùng 1:</span>
+                    <input type="number" class="answer-input" id="2_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Thùng 2:</span>
+                    <input type="number" class="answer-input" id="2_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(2, [16.5, 66.0])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(2)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_2"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 3:</div>
+            <div class="problem-content">
+                Một mảnh vườn hình chữ nhật có nửa chu vi là 45,5 m. Chiều rộng bằng 
+                <span class="fraction">
+                    <span class="fraction-up">3</span>
+                    <span class="fraction-down">4</span>
+                </span>
+                chiều dài. Tính chiều dài và chiều rộng của mảnh vườn.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Chiều rộng:</span>
+                    <input type="number" class="answer-input" id="3_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Chiều dài:</span>
+                    <input type="number" class="answer-input" id="3_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(3, [19.5, 26.0])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(3)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_3"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 4:</div>
+            <div class="problem-content">
+                Tổng số gạo nếp và gạo tẻ là 108,9 kg. Biết lượng gạo nếp bằng 
+                <span class="fraction">
+                    <span class="fraction-up">4</span>
+                    <span class="fraction-down">5</span>
+                </span>
+                lượng gạo tẻ. Hỏi có bao nhiêu ki-lô-gam mỗi loại?
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Gạo nếp:</span>
+                    <input type="number" class="answer-input" id="4_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Gạo tẻ:</span>
+                    <input type="number" class="answer-input" id="4_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(4, [48.4, 60.5])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(4)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_4"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 5:</div>
+            <div class="problem-content">
+                Tổng hai số là 12,6. Số lớn gấp 2,5 lần số bé (Tức là tỉ số 
+                <span class="fraction">
+                    <span class="fraction-up">5</span>
+                    <span class="fraction-down">2</span>
+                </span>
+                ). Tìm hai số đó.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Số bé:</span>
+                    <input type="number" class="answer-input" id="5_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Số lớn:</span>
+                    <input type="number" class="answer-input" id="5_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(5, [3.6, 9.0])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(5)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_5"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 6:</div>
+            <div class="problem-content">
+                Khối lớp 5 và khối lớp 4 quyên góp được tổng cộng 220,5 quyển vở. Số vở khối 5 quyên góp bằng 
+                <span class="fraction">
+                    <span class="fraction-up">4</span>
+                    <span class="fraction-down">3</span>
+                </span>
+                số vở khối 4. Tính số vở mỗi khối.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Khối 4:</span>
+                    <input type="number" class="answer-input" id="6_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Khối 5:</span>
+                    <input type="number" class="answer-input" id="6_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(6, [94.5, 126.0])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(6)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_6"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 7:</div>
+            <div class="problem-content">
+                Hai vòi nước cùng chảy vào bể được 157,5 lít nước. Lượng nước vòi thứ nhất chảy được bằng 
+                <span class="fraction">
+                    <span class="fraction-up">2</span>
+                    <span class="fraction-down">5</span>
+                </span>
+                lượng nước vòi thứ hai. Tính lượng nước mỗi vòi chảy được.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Vòi 1:</span>
+                    <input type="number" class="answer-input" id="7_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Vòi 2:</span>
+                    <input type="number" class="answer-input" id="7_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(7, [45.0, 112.5])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(7)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_7"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 8:</div>
+            <div class="problem-content">
+                Tổng độ dài hai tấm vải là 63,7 m. Tấm vải xanh bằng 
+                <span class="fraction">
+                    <span class="fraction-up">3</span>
+                    <span class="fraction-down">4</span>
+                </span>
+                tấm vải đỏ. Tìm độ dài mỗi tấm vải.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Vải xanh:</span>
+                    <input type="number" class="answer-input" id="8_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Vải đỏ:</span>
+                    <input type="number" class="answer-input" id="8_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(8, [27.3, 36.4])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(8)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_8"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 9:</div>
+            <div class="problem-content">
+                Tìm hai số có tổng là 202,4. Biết số bé bằng 
+                <span class="fraction">
+                    <span class="fraction-up">3</span>
+                    <span class="fraction-down">5</span>
+                </span>
+                số lớn.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Số bé:</span>
+                    <input type="number" class="answer-input" id="9_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Số lớn:</span>
+                    <input type="number" class="answer-input" id="9_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(9, [75.9, 126.5])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(9)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_9"></div>
+        </div>
+
+        <div class="problem">
+            <div class="problem-title">Bài 10:</div>
+            <div class="problem-content">
+                Một cửa hàng bán được tổng cộng 93,6 kg đường trong hai ngày. Số đường bán ngày thứ nhất bằng 
+                <span class="fraction">
+                    <span class="fraction-up">1</span>
+                    <span class="fraction-down">2</span>
+                </span>
+                số đường bán ngày thứ hai. Tính số đường bán mỗi ngày.
+            </div>
+            <div class="answer-section">
+                <div class="answer-group">
+                    <span class="answer-label">Ngày 1:</span>
+                    <input type="number" class="answer-input" id="10_1" step="0.1">
+                </div>
+                <div class="answer-group">
+                    <span class="answer-label">Ngày 2:</span>
+                    <input type="number" class="answer-input" id="10_2" step="0.1">
+                </div>
+                <button class="check-btn" onclick="checkAnswer(10, [31.2, 62.4])">Kiểm tra</button>
+                <button class="reset-btn" onclick="resetSingleProblem(10)" style="background-color: #f39c12; margin-left: 15px; padding: 12px 20px; font-size: 16px;">Xóa</button>
+            </div>
+            <div class="result" id="result_10"></div>
+        </div>
+
+        <div class="controls">
+            <button class="reset-btn" onclick="resetAll()">Xóa tất cả câu trả lời</button>
+            <button class="reset-btn" onclick="resetProblem()" style="background-color: #3498db; margin-left: 10px;">Làm lại bài này</button>
+        </div>
+    </div>
+
+    <script>
+        // Các lời khen khi làm đúng
+        const praiseMessages = [
+            "🎉 Tuyệt vời! Bạn làm đúng rồi!",
+            "⭐ Xuất sắc! Cố gắng lên nhé!",
+            "🏆 Chính xác! Bạn thông minh quá!",
+            "🌟 Hoàn hảo! Tiếp tục phát huy nhé!",
+            "💫 Đỉnh cao! Bạn giỏi toán lắm!"
+        ];
+        
+        // Các lời động viên khi làm sai
+        const encouragementMessages = [
+            "💪 Đừng nản lòng! Cố gắng lại nhé!",
+            "🌈 Sắp đúng rồi! Thử lại xem sao!",
+            "🎯 Gần đúng! Kiểm tra lại một chút nhé!",
+            "⚡ Không sao cả! Mọi người đều có lúc sai!",
+            "🌱 Cần thêm chút thời gian! Bạn làm được mà!"
+        ];
+        
+        // Tạo âm thanh vỗ tay (sử dụng Web Audio API)
+        function playApplauseSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Tạo nhiều âm thanh vỗ tay mô phỏng tiếng vỗ tay thật
+            const clapSounds = [
+                {freq: 1200, duration: 0.05, delay: 0},
+                {freq: 1000, duration: 0.04, delay: 0.02},
+                {freq: 1400, duration: 0.03, delay: 0.04},
+                {freq: 800, duration: 0.05, delay: 0.06},
+                {freq: 1100, duration: 0.04, delay: 0.08},
+                {freq: 1300, duration: 0.03, delay: 0.10},
+                {freq: 900, duration: 0.05, delay: 0.12},
+                {freq: 1500, duration: 0.02, delay: 0.14}
+            ];
+            
+            clapSounds.forEach(sound => {
+                setTimeout(() => {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    const filter = audioContext.createBiquadFilter();
+                    
+                    oscillator.connect(filter);
+                    filter.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = sound.freq;
+                    oscillator.type = 'square';
+                    
+                    // Bộ lọc để âm thanh tự nhiên hơn
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 2000;
+                    filter.Q.value = 1;
+                    
+                    gainNode.gain.setValueAtTime(0, audioContext.currentTime + sound.delay);
+                    gainNode.gain.linearRampToValueAtTime(0.15, audioContext.currentTime + sound.delay + 0.01);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.delay + sound.duration);
+                    
+                    oscillator.start(audioContext.currentTime + sound.delay);
+                    oscillator.stop(audioContext.currentTime + sound.delay + sound.duration);
+                }, sound.delay * 1000);
+            });
+        }
+        
+        // Tạo âm thanh sai
+        function playWrongSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Tạo âm thanh "bíp" báo sai
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 300;
+            oscillator.type = 'triangle';
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.4);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.4);
+        }
+        
+        // Tạo âm thanh click chuột
+        function playClickSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 600;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.05);
+        }
+        
+        // Tạo âm thanh khi xóa
+        function playDeleteSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.1);
+            oscillator.type = 'sawtooth';
+            
+            gainNode.gain.setValueAtTime(0.08, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+        
+        // Tạo hiệu ứng pháo giấy
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff8cc8', '#a8e6cf'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+                    
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 4000);
+                }, i * 30);
+            }
+        }
+        
+        // Hiển thị lời khen
+        function showPraiseMessage() {
+            const message = praiseMessages[Math.floor(Math.random() * praiseMessages.length)];
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'praise-message';
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 2500);
+        }
+        
+        // Hiển thị lời động viên
+        function showEncouragementMessage() {
+            const message = encouragementMessages[Math.floor(Math.random() * encouragementMessages.length)];
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'encouragement-message';
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 2000);
+        }
+        
+        function checkAnswer(problemNum, correctAnswers) {
+            const input1 = document.getElementById(`${problemNum}_1`);
+            const input2 = document.getElementById(`${problemNum}_2`);
+            const resultDiv = document.getElementById(`result_${problemNum}`);
+            
+            const answer1 = parseFloat(input1.value);
+            const answer2 = parseFloat(input2.value);
+            
+            if (isNaN(answer1) || isNaN(answer2)) {
+                resultDiv.textContent = "Vui lòng nhập đầy đủ câu trả lời!";
+                resultDiv.className = "result incorrect";
+                resultDiv.style.display = "block";
+                return;
+            }
+            
+            // Cho phép sai số nhỏ 0.1 do làm tròn
+            const tolerance = 0.1;
+            const isCorrect1 = Math.abs(answer1 - correctAnswers[0]) <= tolerance;
+            const isCorrect2 = Math.abs(answer2 - correctAnswers[1]) <= tolerance;
+            
+            if (isCorrect1 && isCorrect2) {
+                resultDiv.textContent = "✓ Đúng rồi! Rất tốt!";
+                resultDiv.className = "result correct";
+                
+                // Phát hiệu ứng khi làm đúng
+                playApplauseSound();
+                createConfetti();
+                showPraiseMessage();
+            } else {
+                resultDiv.textContent = `✗ Chưa đúng. Đáp án đúng: ${correctAnswers[0].toFixed(1)} và ${correctAnswers[1].toFixed(1)}`;
+                resultDiv.className = "result incorrect";
+                
+                // Phát hiệu ứng khi làm sai
+                playWrongSound();
+                showEncouragementMessage();
+            }
+            resultDiv.style.display = "block";
+        }
+        
+        function resetAll() {
+            const inputs = document.querySelectorAll('.answer-input');
+            const results = document.querySelectorAll('.result');
+            
+            inputs.forEach(input => input.value = '');
+            results.forEach(result => result.style.display = 'none');
+        }
+        
+        function resetProblem() {
+            // Tải lại trang để làm lại từ đầu
+            if (confirm('Bạn có chắc muốn làm lại tất cả các bài tập từ đầu?')) {
+                location.reload();
+            }
+        }
+        
+        function resetSingleProblem(problemNum) {
+            // Xóa câu trả lời của một bài cụ thể
+            const input1 = document.getElementById(`${problemNum}_1`);
+            const input2 = document.getElementById(`${problemNum}_2`);
+            const resultDiv = document.getElementById(`result_${problemNum}`);
+            
+            input1.value = '';
+            input2.value = '';
+            resultDiv.style.display = 'none';
+            
+            // Phát âm thanh xóa
+            playDeleteSound();
+            
+            // Focus vào ô nhập đầu tiên
+            input1.focus();
+        }
+        
+        // Thêm sự kiện Enter để kiểm tra
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.classList.contains('answer-input')) {
+                    const problemNum = activeElement.id.split('_')[0];
+                    const button = activeElement.parentElement.parentElement.querySelector('.check-btn');
+                    if (button) {
+                        playClickSound();
+                        button.click();
+                    }
+                }
+            }
+        });
+        
+        // Thêm âm thanh khi click vào các nút
+        document.addEventListener('DOMContentLoaded', function() {
+            // Thêm âm thanh cho tất cả các nút
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (!this.onclick || !this.onclick.toString().includes('playApplauseSound') && 
+                        !this.onclick.toString().includes('playWrongSound') && 
+                        !this.onclick.toString().includes('playDeleteSound')) {
+                        playClickSound();
+                    }
+                });
+            });
+            
+            // Thêm âm thanh khi nhập liệu
+            const inputs = document.querySelectorAll('.answer-input');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Chỉ phát âm thanh khi có giá trị được nhập
+                    if (this.value.length > 0) {
+                        playClickSound();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
