@@ -451,7 +451,6 @@ window.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') userCar.targetY = 180;
     }
     if (e.key === 'Enter' && state.mode === 'QUIZ') checkAnswer();
-    if (e.key === ' ' && state.mode === 'START') startGame();
 });
 
 document.getElementById('start-btn').addEventListener('click', startGame);
