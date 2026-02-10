@@ -182,6 +182,10 @@
                 font-size: 1rem;
             }
         }
+
+        .admin-only {
+            display: none !important;
+        }
     </style>
 </head>
 
@@ -213,9 +217,22 @@
                 <p>Tính diện tích toàn phần và xung quanh của hình hộp chữ nhật.</p>
                 <div class="decor-line"></div>
             </a>
+            <a href="KhongToan/index.html" class="menu-item admin-only"
+                style="flex: 1; min-width: 250px; max-width: 250px; border-color: var(--neon-purple);">
+                <h2>ĐUA XE VÔ TẬN</h2>
+                <p>Đường đua Neon vô tận, thư giãn tuyệt đỉnh.</p>
+                <div class="decor-line" style="background: var(--neon-purple);"></div>
+            </a>
+
+            <a href="MoToVoTan/index.html" class="menu-item admin-only"
+                style="flex: 1; min-width: 250px; max-width: 250px; border-color: #ffcc00;">
+                <h2>MÔ TÔ VÔ TẬN</h2>
+                <p>Trải nghiệm tốc độ cao trên hành trình không giới hạn.</p>
+                <div class="decor-line" style="background: #ffcc00;"></div>
+            </a>
         </div>
 
-        <footer>
+        <footer id="admin-trigger" style="cursor: pointer; user-select: none;">
             @2026 - EduRobot - Phát triển bởi Lê Thành Long
         </footer>
     </div>
@@ -235,6 +252,21 @@
             particle.style.boxShadow = '0 0 5px #fff';
             particlesContainer.appendChild(particle);
         }
+
+        // Admin Mode Toggle
+        let footerClicks = 0;
+        document.getElementById('admin-trigger').addEventListener('click', () => {
+            footerClicks++;
+            if (footerClicks >= 3) {
+                const adminGames = document.querySelectorAll('.admin-only');
+                adminGames.forEach(game => {
+                    game.style.display = 'flex';
+                });
+                // Rung nhẹ để báo hiệu
+                document.getElementById('admin-trigger').style.opacity = "1";
+                document.getElementById('admin-trigger').style.color = "var(--neon-pink)";
+            }
+        });
     </script>
 </body>
 
