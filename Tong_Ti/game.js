@@ -222,6 +222,16 @@ function update() {
     }
     userCar.update();
     updateUI();
+
+    // Sound Control
+    if (state.mode === 'DRIVING' && state.speed > 0.1) {
+        if (state.assets.engineSound.paused) state.assets.engineSound.play().catch(() => { });
+        const speedRatio = state.speed / 12;
+        state.assets.engineSound.playbackRate = 0.6 + speedRatio * 0.8;
+        state.assets.engineSound.volume = Math.min(1.0, 0.2 + speedRatio * 0.5);
+    } else {
+        state.assets.engineSound.pause();
+    }
 }
 
 function draw() {
