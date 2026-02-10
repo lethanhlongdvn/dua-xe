@@ -455,14 +455,47 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && state.mode === 'QUIZ') checkAnswer();
 });
 
-document.getElementById('start-btn').addEventListener('click', startGame);
-document.getElementById('submit-btn').addEventListener('click', checkAnswer);
-document.getElementById('restart-btn').addEventListener('click', () => location.reload());
+// --- INITIALIZATION ---
+window.addEventListener('load', () => {
+    console.log("Game Script Loaded & Window Ready");
+
+    const startBtn = document.getElementById('start-btn');
+    if (startBtn) {
+        startBtn.addEventListener('click', startGame);
+        console.log("Start button listener attached");
+    }
+
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+        submitBtn.addEventListener('click', checkAnswer);
+    }
+
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn) {
+        restartBtn.addEventListener('click', () => location.reload());
+    }
+
+    // Initialize UI
+    updateBestTimePreview();
+    showLeaderboard();
+});
+
+// Make startGame global for onclick fallback
+window.startGame = startGame;
 
 function startGame() {
+    console.log("startGame function called");
     try {
-        const nameInput = document.getElementById('player-name').value.trim();
-        const classSelect = document.getElementById('player-class').value;
+        const nameInputEl = document.getElementById('player-name');
+        const classSelectEl = document.getElementById('player-class');
+
+        if (!nameInputEl || !classSelectEl) {
+            console.error("Missing required input elements");
+            return;
+        }
+
+        const nameInput = nameInputEl.value.trim();
+        const classSelect = classSelectEl.value;
 
         if (!nameInput) {
             alert("Em hãy nhập tên của mình nhé!");
@@ -596,8 +629,7 @@ async function updateBestTimePreview() {
         if (bestTimeEl) bestTimeEl.innerText = `${mins}:${secs}`;
     }
 }
-updateBestTimePreview();
-showLeaderboard();
+// Removed immediate calls (now in window.onload)
 
 function drawFireworks() {
     if (Math.random() < 0.1) {
