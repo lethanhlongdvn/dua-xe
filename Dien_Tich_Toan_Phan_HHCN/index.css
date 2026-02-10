@@ -207,6 +207,11 @@ h1 {
     transform: translateY(-2px);
 }
 
+#start-btn {
+    position: relative;
+    z-index: 100;
+}
+
 .controls-hint {
     margin-top: 20px;
     display: flex;
