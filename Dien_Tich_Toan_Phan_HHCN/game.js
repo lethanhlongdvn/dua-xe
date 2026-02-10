@@ -5,6 +5,12 @@ const ctx = canvas.getContext('2d');
 canvas.width = 1000;
 canvas.height = 380;
 
+// --- SUPABASE CONFIG ---
+const supabaseUrl = 'https://khrucxyrvtprykaatcjn.supabase.co';
+const supabaseKey = 'sb_publishable_Nn8HTw3Nxau96UR068_E7g_Mbv3Km66';
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+const GAME_ID = 'hhcn';
+
 // Game State
 const state = {
     mode: 'START', // START, DRIVING, QUIZ, FINISH
@@ -457,37 +463,77 @@ function startGame() {
     document.getElementById('start-screen').classList.add('hidden');
 }
 
-// --- HIGH SCORE LOGIC ---
-const SCORE_KEY = 'top_scores_hhcn';
+// --- HIGH SCORE LOGIC (ONLINE) ---
+const SCORE_LOCAL_KEY = 'top_scores_hhcn';
 
-function saveHighScore(time) {
-    let scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
-    scores.push(time);
-    scores.sort((a, b) => a - b);
-    scores = scores.slice(0, 5);
-    localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
-}
+async function saveHighScore(time) {
+    // 1. Lưu offline
+    let locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+    locals.push(time);
+    locals.sort((a, b) => a - b);
+    localStorage.setItem(SCORE_LOCAL_KEY, JSON.stringify(locals.slice(0, 5)));
 
-function showLeaderboard() {
-    const scoreList = document.getElementById('score-list');
-    const scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
-    scoreList.innerHTML = scores.map((s, i) => {
-        const mins = Math.floor(s / 60).toString().padStart(2, '0');
-        const secs = (s % 60).toString().padStart(2, '0');
-        return `<li><span class="rank">#${i + 1}</span> <span>${mins}:${secs}</span></li>`;
-    }).join('');
+    // 2. Lưu online
+    if (supabase) {
+        const playerName = prompt("Chúc mừng! Hãy nhập tên của bạn để lưu kỷ lục:") || "Ẩn danh";
+        const { error } = await supabase
+            .from('high_scores')
+            .insert([{ game_id: GAME_ID, player_name: playerName, score_time: time }]);
 
-    if (scores.length === 0) {
-        scoreList.innerHTML = '<li>Chưa có kỷ lục</li>';
+        if (error) console.error("Lỗi lưu điểm online:", error);
+        showLeaderboard();
     }
 }
 
-function updateBestTimePreview() {
-    const scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
-    if (scores.length > 0) {
-        const s = scores[0];
+async function showLeaderboard() {
+    const scoreList = document.getElementById('score-list');
+
+    if (supabase) {
+        const { data, error } = await supabase
+            .from('high_scores')
+            .select('player_name, score_time')
+            .eq('game_id', GAME_ID)
+            .order('score_time', { ascending: true })
+            .limit(5);
+
+        if (!error && data) {
+            scoreList.innerHTML = data.map((s, i) => {
+                const mins = Math.floor(s.score_time / 60).toString().padStart(2, '0');
+                const secs = (Math.floor(s.score_time % 60)).toString().padStart(2, '0');
+                return `<li><span class="rank">#${i + 1} ${s.player_name}</span> <span>${mins}:${secs}</span></li>`;
+            }).join('');
+            return;
+        }
+    }
+
+    const scores = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+    scoreList.innerHTML = scores.map((s, i) => {
         const mins = Math.floor(s / 60).toString().padStart(2, '0');
         const secs = (s % 60).toString().padStart(2, '0');
+        return `<li><span class="rank">#${i + 1} Bạn</span> <span>${mins}:${secs}</span></li>`;
+    }).join('');
+}
+
+async function updateBestTimePreview() {
+    let best;
+    if (supabase) {
+        const { data } = await supabase
+            .from('high_scores')
+            .select('score_time')
+            .eq('game_id', GAME_ID)
+            .order('score_time', { ascending: true })
+            .limit(1);
+        if (data && data.length > 0) best = data[0].score_time;
+    }
+
+    if (!best) {
+        const locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+        if (locals.length > 0) best = locals[0];
+    }
+
+    if (best) {
+        const mins = Math.floor(best / 60).toString().padStart(2, '0');
+        const secs = (Math.floor(best % 60)).toString().padStart(2, '0');
         document.getElementById('best-time').innerText = `${mins}:${secs}`;
     }
 }
