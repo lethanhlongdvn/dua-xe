@@ -22,6 +22,8 @@ const state = {
     progress: 0,
     particles: [],
     startTime: 0,
+    gameStartTime: 0,
+    totalTime: 0,
     cruisingDelay: 20000, // 20 seconds
     assets: {
         carImage: new Image(),
@@ -377,6 +379,14 @@ function updateUI() {
     document.getElementById('progress-bar').style.width = `${progressPerc}%`;
     document.getElementById('progress-text').innerText = `${state.currentIdx}/10`;
 
+    // Timer display preview
+    if (state.mode === 'DRIVING' || state.mode === 'QUIZ') {
+        const currentTotal = Math.floor((Date.now() - state.gameStartTime) / 1000);
+        const mins = Math.floor(currentTotal / 60).toString().padStart(2, '0');
+        const secs = (currentTotal % 60).toString().padStart(2, '0');
+        // Update nav preview if desired
+    }
+
     // Cruising Phase HUD Update
     const elapsed = Date.now() - state.startTime;
     const remaining = Math.max(0, Math.ceil((state.cruisingDelay - elapsed) / 1000));
@@ -409,7 +419,14 @@ function checkAnswer() {
 
         if (state.currentIdx >= QUESTIONS.length) {
             state.mode = 'FINISH';
+            state.totalTime = Math.floor((Date.now() - state.gameStartTime) / 1000);
+            saveHighScore(state.totalTime);
+            showLeaderboard();
             document.getElementById('finish-screen').classList.remove('hidden');
+
+            const mins = Math.floor(state.totalTime / 60).toString().padStart(2, '0');
+            const secs = (state.totalTime % 60).toString().padStart(2, '0');
+            document.getElementById('final-time').innerText = `${mins}:${secs}`;
         } else {
             state.mode = 'DRIVING';
         }
@@ -436,8 +453,45 @@ document.getElementById('restart-btn').addEventListener('click', () => location.
 function startGame() {
     state.mode = 'DRIVING';
     state.startTime = Date.now();
+    state.gameStartTime = Date.now();
     document.getElementById('start-screen').classList.add('hidden');
 }
+
+// --- HIGH SCORE LOGIC ---
+const SCORE_KEY = 'top_scores_hhcn';
+
+function saveHighScore(time) {
+    let scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
+    scores.push(time);
+    scores.sort((a, b) => a - b);
+    scores = scores.slice(0, 5);
+    localStorage.setItem(SCORE_KEY, JSON.stringify(scores));
+}
+
+function showLeaderboard() {
+    const scoreList = document.getElementById('score-list');
+    const scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
+    scoreList.innerHTML = scores.map((s, i) => {
+        const mins = Math.floor(s / 60).toString().padStart(2, '0');
+        const secs = (s % 60).toString().padStart(2, '0');
+        return `<li><span class="rank">#${i + 1}</span> <span>${mins}:${secs}</span></li>`;
+    }).join('');
+
+    if (scores.length === 0) {
+        scoreList.innerHTML = '<li>Chưa có kỷ lục</li>';
+    }
+}
+
+function updateBestTimePreview() {
+    const scores = JSON.parse(localStorage.getItem(SCORE_KEY)) || [];
+    if (scores.length > 0) {
+        const s = scores[0];
+        const mins = Math.floor(s / 60).toString().padStart(2, '0');
+        const secs = (s % 60).toString().padStart(2, '0');
+        document.getElementById('best-time').innerText = `${mins}:${secs}`;
+    }
+}
+updateBestTimePreview();
 
 function drawFireworks() {
     if (Math.random() < 0.1) {
