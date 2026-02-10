@@ -143,6 +143,36 @@ canvas {
     max-width: 500px;
 }
 
+.registration-form {
+    margin: 25px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.registration-form input,
+.registration-form select {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--primary);
+    padding: 12px 20px;
+    border-radius: 10px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.3s;
+}
+
+.registration-form input:focus,
+.registration-form select:focus {
+    box-shadow: 0 0 15px var(--primary);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.registration-form select option {
+    background: var(--bg-dark);
+    color: white;
+}
+
 h1 {
     font-family: 'Outfit', sans-serif;
     font-size: 2.8rem;
@@ -376,6 +406,73 @@ input[type="text"]:focus {
 #score-list li span.rank {
     color: var(--secondary);
     font-weight: bold;
+}
+
+/* --- New Leaderboard Style --- */
+.score-list-common {
+    list-style: none;
+    padding: 0;
+}
+
+.score-list-common li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.score-list-common li:last-child {
+    border-bottom: none;
+}
+
+.player-info {
+    text-align: left;
+}
+
+.player-name-tag {
+    display: block;
+    font-weight: bold;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.player-class-tag {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--primary);
+    opacity: 0.8;
+}
+
+.score-time-tag {
+    font-family: 'Outfit', sans-serif;
+    font-weight: bold;
+    color: var(--secondary);
+    font-size: 1.1rem;
+}
+
+.mini-leaderboard {
+    margin-top: 25px;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 20px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.mini-leaderboard h3 {
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+
+.mini-leaderboard::-webkit-scrollbar {
+    width: 4px;
+}
+
+.mini-leaderboard::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 2px;
 }
 
 .game-footer {
