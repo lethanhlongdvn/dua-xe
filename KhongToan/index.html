@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KhongToan - Đua Xe Vô Tận</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+    <!-- Load Supabase Library First -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="nav-top">
+            <a href="../index.html" class="home-btn">🏠 TRANG CHỦ</a>
+            <div id="top-scores-preview">KỶ LỤC: <span id="best-time">0m</span></div>
+        </div>
+        <!-- Game Canvas Area -->
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+
+            <div id="status-overlay" class="hidden">
+                <span id="status-text"></span>
+            </div>
+
+            <!-- Overlay Screens -->
+            <div id="start-screen" class="overlay">
+                <div class="glass-panel">
+                    <h1>KHÔNG TOÁN - RACING</h1>
+                    <div class="registration-form">
+                        <input type="text" id="player-name" placeholder="Nhập tên của em..." autocomplete="off">
+                        <select id="player-class">
+                            <option value="" disabled selected>Chọn lớp</option>
+                            <option value="5/1">Lớp 5/1</option>
+                            <option value="5/2">Lớp 5/2</option>
+                            <option value="5/3">Lớp 5/3</option>
+                            <option value="5/4">Lớp 5/4</option>
+                        </select>
+                    </div>
+                    <button id="start-btn" class="main-btn">BẮT ĐẦU CHẠY</button>
+
+                    <div id="start-leaderboard" class="mini-leaderboard">
+                        <h3>🏆 BẢNG VÀNG QUÃNG ĐƯỜNG</h3>
+                        <ul class="score-list-common"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Finish screen handled as 'Game Over' if we want, or just hide -->
+            <div id="finish-screen" class="overlay hidden">
+                <div class="glass-panel">
+                    <h1 class="win-title">KẾT THÚC HÀNH TRÌNH! 🏆</h1>
+                    <p>Quãng đường đã đi: <span id="final-time" class="highlight">0m</span></p>
+                    <div id="leaderboard">
+                        <h2>🏆 TOP 10 QUÃNG ĐƯỜNG XA NHẤT</h2>
+                        <ul id="score-list" class="score-list-common">
+                            <!-- Scores inject here -->
+                        </ul>
+                    </div>
+                    <button id="restart-btn" class="main-btn">CHẠY LẠI</button>
+                    <a href="../index.html" class="main-btn" style="text-decoration: none; display: inline-block;">MENU
+                        CHÍNH</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Area -->
+        <div id="dashboard">
+            <div class="dashboard-grid">
+                <!-- Info Section -->
+                <div class="panel info-panel">
+                    <div class="stat">
+                        <span class="label">QUÃNG ĐƯỜNG</span>
+                        <div class="progress-container">
+                            <div id="progress-bar"
+                                style="width: 100%; background: linear-gradient(90deg, #00d2ff, #ff00ff);"></div>
+                        </div>
+                        <span id="progress-text" class="value">0m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">TỐC ĐỘ</span>
+                        <span id="speed-val" class="value highlight">0 KM/H</span>
+                    </div>
+                </div>
+
+                <div class="panel control-panel" style="display: flex; align-items: center; justify-content: center;">
+                    <button id="finish-run-btn" class="main-btn"
+                        style="padding: 10px 20px; font-size: 1rem; margin: 0;">KẾT THÚC CHUYẾN ĐI</button>
+                </div>
+
+                <!-- Quiz Section: Hidden in this mode -->
+                <div id="quiz-panel" class="panel quiz-panel inactive" style="display: none !important;">
+                </div>
+            </div>
+        </div>
+        <footer class="game-footer">
+            @2026 - EduRobot - Phát triển bởi Lê Thành Long
+        </footer>
+    </div>
+    <!-- No cache buster needed for new game but good practice -->
+    <script src="game.js?v=infinite"></script>
+</body>
+
+</html>
