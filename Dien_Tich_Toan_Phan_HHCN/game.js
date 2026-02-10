@@ -14,6 +14,8 @@ const GAME_ID = 'hhcn';
 // Game State
 const state = {
     mode: 'START', // START, DRIVING, QUIZ, FINISH
+    playerName: '',
+    playerClass: '',
     currentIdx: 0,
     speed: 0,
     targetSpeed: 0,
@@ -457,6 +459,21 @@ document.getElementById('submit-btn').addEventListener('click', checkAnswer);
 document.getElementById('restart-btn').addEventListener('click', () => location.reload());
 
 function startGame() {
+    const nameInput = document.getElementById('player-name').value.trim();
+    const classSelect = document.getElementById('player-class').value;
+
+    if (!nameInput) {
+        alert("Em hãy nhập tên của mình nhé!");
+        return;
+    }
+    if (!classSelect) {
+        alert("Em hãy chọn lớp của mình nhé!");
+        return;
+    }
+
+    state.playerName = nameInput;
+    state.playerClass = classSelect;
+
     state.mode = 'DRIVING';
     state.startTime = Date.now();
     state.gameStartTime = Date.now();
@@ -469,16 +486,16 @@ const SCORE_LOCAL_KEY = 'top_scores_hhcn';
 async function saveHighScore(time) {
     // 1. Lưu offline
     let locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
-    locals.push(time);
-    locals.sort((a, b) => a - b);
-    localStorage.setItem(SCORE_LOCAL_KEY, JSON.stringify(locals.slice(0, 5)));
+    locals.push({ name: state.playerName, class: state.playerClass, time: time });
+    locals.sort((a, b) => a.time - b.time);
+    localStorage.setItem(SCORE_LOCAL_KEY, JSON.stringify(locals.slice(0, 10)));
 
-    // 2. Lưu online
+    // 2. Lưu online tự động
     if (supabase) {
-        const playerName = prompt("Chúc mừng! Hãy nhập tên của bạn để lưu kỷ lục:") || "Ẩn danh";
+        const fullDisplay = `${state.playerName} - ${state.playerClass}`;
         const { error } = await supabase
             .from('high_scores')
-            .insert([{ game_id: GAME_ID, player_name: playerName, score_time: time }]);
+            .insert([{ game_id: GAME_ID, player_name: fullDisplay, score_time: time }]);
 
         if (error) console.error("Lỗi lưu điểm online:", error);
         showLeaderboard();
@@ -486,7 +503,10 @@ async function saveHighScore(time) {
 }
 
 async function showLeaderboard() {
-    const scoreList = document.getElementById('score-list');
+    const listFinish = document.getElementById('score-list');
+    const startLeaderboard = document.querySelector('#start-leaderboard ul');
+
+    let html = '';
 
     if (supabase) {
         const { data, error } = await supabase
@@ -494,24 +514,46 @@ async function showLeaderboard() {
             .select('player_name, score_time')
             .eq('game_id', GAME_ID)
             .order('score_time', { ascending: true })
-            .limit(5);
+            .limit(10);
 
         if (!error && data) {
-            scoreList.innerHTML = data.map((s, i) => {
+            html = data.map((s, i) => {
+                const parts = s.player_name.split(' - ');
+                const name = parts[0] || "Ẩn danh";
+                const className = parts[1] || "KĐ";
                 const mins = Math.floor(s.score_time / 60).toString().padStart(2, '0');
                 const secs = (Math.floor(s.score_time % 60)).toString().padStart(2, '0');
-                return `<li><span class="rank">#${i + 1} ${s.player_name}</span> <span>${mins}:${secs}</span></li>`;
+
+                return `
+                    <li>
+                        <div class="player-info">
+                            <span class="player-name-tag">#${i + 1} ${name}</span>
+                            <span class="player-class-tag">Lớp: ${className}</span>
+                        </div>
+                        <span class="score-time-tag">${mins}:${secs}</span>
+                    </li>`;
             }).join('');
-            return;
         }
     }
 
-    const scores = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
-    scoreList.innerHTML = scores.map((s, i) => {
-        const mins = Math.floor(s / 60).toString().padStart(2, '0');
-        const secs = (s % 60).toString().padStart(2, '0');
-        return `<li><span class="rank">#${i + 1} Bạn</span> <span>${mins}:${secs}</span></li>`;
-    }).join('');
+    if (!html) {
+        const items = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+        html = items.map((s, i) => {
+            const mins = Math.floor(s.time / 60).toString().padStart(2, '0');
+            const secs = (Math.floor(s.time % 60)).toString().padStart(2, '0');
+            return `
+                <li>
+                    <div class="player-info">
+                        <span class="player-name-tag">#${i + 1} ${s.name}</span>
+                        <span class="player-class-tag">Lớp: ${s.class}</span>
+                    </div>
+                    <span class="score-time-tag">${mins}:${secs}</span>
+                </li>`;
+        }).join('');
+    }
+
+    if (listFinish) listFinish.innerHTML = html || '<li>Chưa có kỷ lục</li>';
+    if (startLeaderboard) startLeaderboard.innerHTML = html || '<li>Chưa có kỷ lục</li>';
 }
 
 async function updateBestTimePreview() {
@@ -538,6 +580,7 @@ async function updateBestTimePreview() {
     }
 }
 updateBestTimePreview();
+showLeaderboard();
 
 function drawFireworks() {
     if (Math.random() < 0.1) {
