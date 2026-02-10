@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đua Xe Toán Học - Chinh Phục Thử Thách</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Inter:wght@400;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div id="game-container">
+        <!-- Game Canvas Area -->
+        <div id="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+
+            <div id="status-overlay" class="hidden">
+                <span id="status-text"></span>
+            </div>
+
+            <!-- Overlay Screens -->
+            <div id="start-screen" class="overlay">
+                <div class="glass-panel">
+                    <h1>ĐUA XE TOÁN HỌC</h1>
+                    <p>Lái xe, tránh chướng ngại vật và giải toán để chiến thắng!</p>
+                    <div class="controls-hint">
+                        <span>⬆️ / ⬇️ Di chuyển</span>
+                        <span>SPACE Bắt đầu</span>
+                    </div>
+                    <button id="start-btn" class="main-btn">BẮT ĐẦU ĐUA</button>
+                </div>
+            </div>
+
+            <div id="finish-screen" class="overlay hidden">
+                <div class="glass-panel">
+                    <h1 class="win-title">CHIẾN THẮNG! 🏆</h1>
+                    <p>Bạn đã vượt qua tất cả 10 thử thách.</p>
+                    <button id="restart-btn" class="main-btn">CHƠI LẠI</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Area -->
+        <div id="dashboard">
+            <div class="dashboard-grid">
+                <!-- Info Section -->
+                <div class="panel info-panel">
+                    <div class="stat">
+                        <span class="label">TIẾN ĐỘ</span>
+                        <div class="progress-container">
+                            <div id="progress-bar"></div>
+                        </div>
+                        <span id="progress-text" class="value">0/10</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">TỐC ĐỘ</span>
+                        <span id="speed-val" class="value highlight">0 KM/H</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Section -->
+                <div id="quiz-panel" class="panel quiz-panel inactive">
+                    <div id="quiz-content">
+                        <h2 id="quiz-title">CHƯỚNG NGẠI VẬT</h2>
+                        <p id="question-text">Đang trên đường đua...</p>
+                        <div class="input-wrapper">
+                            <input type="text" id="answer-input" placeholder="Nhập đáp án (Số bé;Số lớn)"
+                                autocomplete="off">
+                            <button id="submit-btn">GỬI</button>
+                        </div>
+                        <p class="hint">Dùng dấu chấm cho số thập phân. Ví dụ: 12.5;25</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
