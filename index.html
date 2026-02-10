@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đua Xe Toán Học - Menu Chính</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --neon-blue: #00d2ff;
+            --neon-pink: #ff00ff;
+            --neon-purple: #9d00ff;
+            --bg-dark: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 10% 10%, rgba(0, 210, 255, 0.05) 0%, transparent 30%);
+        }
+
+        .container {
+            text-align: center;
+            max-width: 900px;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #fff;
+            text-shadow:
+                0 0 10px var(--neon-blue),
+                0 0 20px var(--neon-blue),
+                0 0 40px var(--neon-blue);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            }
+
+            to {
+                text-shadow: 0 0 15px var(--neon-blue), 0 0 30px var(--neon-blue), 0 0 50px var(--neon-blue);
+            }
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .menu-item {
+            position: relative;
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #fff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.1),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+        .menu-item:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .menu-item h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--neon-blue);
+        }
+
+        .menu-item p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            line-height: 1.4;
+        }
+
+        .decor-line {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--neon-pink);
+            transition: width 0.3s ease;
+        }
+
+        .menu-item:hover .decor-line {
+            width: 100%;
+        }
+
+        footer {
+            margin-top: 4rem;
+            font-size: 0.9rem;
+            opacity: 0.5;
+            letter-spacing: 2px;
+        }
+
+        /* Particle Background Effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <h1>MATH RACING</h1>
+        <p style="font-size: 1.3rem; margin-bottom: 2rem; color: var(--neon-pink);">HỆ THỐNG TRÒ CHƠI TOÁN HỌC TƯƠNG TÁC
+        </p>
+
+        <div class="menu-grid">
+            <a href="Tong_Ti/index.html" class="menu-item">
+                <h2>TỔNG - TỈ</h2>
+                <p>Chinh phục các bài toán tổng và tỉ số với đường đua kịch tính.</p>
+                <div class="decor-line"></div>
+            </a>
+
+            <a href="Hieu_Ti/index.html" class="menu-item">
+                <h2>HIỆU - TỈ</h2>
+                <p>Thử thách kỹ năng giải toán hiệu và tỉ số trên tốc độ cao.</p>
+                <div class="decor-line"></div>
+            </a>
+
+            <a href="Dien_Tich_Toan_Phan_HHCN/index.html" class="menu-item">
+                <h2>HÌNH HỘP CHỮ NHẬT</h2>
+                <p>Tính diện tích toàn phần và xung quanh của hình hộp chữ nhật.</p>
+                <div class="decor-line"></div>
+            </a>
+
+            <a href="Dien_Tich_Xung_Quanh_HHCN/index.html" class="menu-item">
+                <h2>S XUNG QUANH</h2>
+                <p>Luyện tập chuyên sâu về diện tích xung quanh HHCN.</p>
+                <div class="decor-line"></div>
+            </a>
+        </div>
+
+        <footer>
+            &copy; 2026 MATH RACING SYSTEM | POWERED BY NEON CORE
+        </footer>
+    </div>
+
+    <script>
+        // Simple particle generator
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 50; i++) {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = '2px';
+            particle.style.height = '2px';
+            particle.style.background = '#fff';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.opacity = Math.random();
+            particle.style.boxShadow = '0 0 5px #fff';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+
+</html>
