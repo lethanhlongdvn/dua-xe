@@ -31,8 +31,8 @@ body {
 
 #game-container {
     width: 1000px;
-    height: 680px;
-    /* Tăng chiều cao để chứa nav-top */
+    height: 700px;
+    /* Tăng chiều cao để chứa footer gọn gàng */
     display: flex;
     flex-direction: column;
     border-radius: 20px;
@@ -374,4 +374,15 @@ input[type="text"]:focus {
 #score-list li span.rank {
     color: var(--secondary);
     font-weight: bold;
+}
+
+.game-footer {
+    text-align: center;
+    font-size: 0.65rem;
+    padding: 10px 0;
+    opacity: 0.3;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #050510;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
 }
