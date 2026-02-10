@@ -204,14 +204,18 @@ class Hurdle {
         ctx.save();
         ctx.translate(this.x, this.y);
 
-        // Cyber Box
+        // Box (Compatible with older browsers)
         ctx.fillStyle = 'rgba(0, 242, 255, 0.05)';
-        ctx.strokeStyle = '#ffcc00';
+        ctx.strokeStyle = '#00f2ff';
         ctx.lineWidth = 2;
         ctx.shadowBlur = 20;
-        ctx.shadowColor = '#ffcc00';
+        ctx.shadowColor = '#00f2ff';
         ctx.beginPath();
-        ctx.roundRect(0, 0, this.w, this.h, 15);
+        if (ctx.roundRect) {
+            ctx.roundRect(0, 0, this.w, this.h, 15);
+        } else {
+            ctx.rect(0, 0, this.w, this.h);
+        }
         ctx.fill();
         ctx.stroke();
         ctx.shadowBlur = 0;
@@ -458,25 +462,36 @@ document.getElementById('submit-btn').addEventListener('click', checkAnswer);
 document.getElementById('restart-btn').addEventListener('click', () => location.reload());
 
 function startGame() {
-    const nameInput = document.getElementById('player-name').value.trim();
-    const classSelect = document.getElementById('player-class').value;
+    try {
+        const nameInput = document.getElementById('player-name').value.trim();
+        const classSelect = document.getElementById('player-class').value;
 
-    if (!nameInput) {
-        alert("Em hãy nhập tên của mình nhé!");
-        return;
+        if (!nameInput) {
+            alert("Em hãy nhập tên của mình nhé!");
+            return;
+        }
+        if (!classSelect) {
+            alert("Em hãy chọn lớp của mình nhé!");
+            return;
+        }
+
+        state.playerName = nameInput;
+        state.playerClass = classSelect;
+
+        state.mode = 'DRIVING';
+        state.startTime = Date.now();
+        state.gameStartTime = Date.now();
+
+        const startScreen = document.getElementById('start-screen');
+        if (startScreen) startScreen.classList.add('hidden');
+
+        if (state.assets.engineSound) {
+            state.assets.engineSound.play().catch(e => console.log("Audio play blocked"));
+        }
+    } catch (err) {
+        console.error("Lỗi startGame:", err);
+        alert("Có lỗi xảy ra khi bắt đầu game. Hãy thử làm mới trang (F5)!");
     }
-    if (!classSelect) {
-        alert("Em hãy chọn lớp của mình nhé!");
-        return;
-    }
-
-    state.playerName = nameInput;
-    state.playerClass = classSelect;
-
-    state.mode = 'DRIVING';
-    state.startTime = Date.now();
-    state.gameStartTime = Date.now();
-    document.getElementById('start-screen').classList.add('hidden');
 }
 
 // --- HIGH SCORE LOGIC (ONLINE) ---
@@ -570,13 +585,14 @@ async function updateBestTimePreview() {
 
     if (!best) {
         const locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
-        if (locals.length > 0) best = locals[0];
+        if (locals.length > 0) best = locals[0].time;
     }
 
-    if (best) {
+    if (best && !isNaN(best)) {
         const mins = Math.floor(best / 60).toString().padStart(2, '0');
         const secs = (Math.floor(best % 60)).toString().padStart(2, '0');
-        document.getElementById('best-time').innerText = `${mins}:${secs}`;
+        const bestTimeEl = document.getElementById('best-time');
+        if (bestTimeEl) bestTimeEl.innerText = `${mins}:${secs}`;
     }
 }
 updateBestTimePreview();
