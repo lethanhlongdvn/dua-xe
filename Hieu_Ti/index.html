@@ -10,6 +10,18 @@
         rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+<script>
+    function startGame() {
+        const startScreen = document.getElementById('start-screen');
+        if (startScreen) {
+            startScreen.style.display = 'none';
+            startScreen.classList.add('hidden');
+        }
+        if (typeof window.realStartGame === 'function') {
+            window.realStartGame();
+        }
+    }
+</script>
 
 <body>
     <div id="game-container">
