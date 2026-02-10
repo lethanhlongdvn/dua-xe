@@ -4,24 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đua Xe Toán Học - Chinh Phục Thử Thách</title>
+    <title>Đua Xe Toán Học - Tổng Tỉ</title>
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&family=Inter:wght@400;600&display=swap"
         rel="stylesheet">
+    <!-- Load Supabase Library First -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<script>
-    function startGame() {
-        const startScreen = document.getElementById('start-screen');
-        if (startScreen) {
-            startScreen.style.display = 'none';
-            startScreen.classList.add('hidden');
-        }
-        if (typeof window.realStartGame === 'function') {
-            window.realStartGame();
-        }
-    }
-</script>
 
 <body>
     <div id="game-container">
@@ -51,7 +40,8 @@
                             <option value="5/4">Lớp 5/4</option>
                         </select>
                     </div>
-                    <button id="start-btn" class="main-btn" onclick="startGame()">BẮT ĐẦU ĐUA</button>
+                    <!-- onclick removed, handled in game.js -->
+                    <button id="start-btn" class="main-btn">BẮT ĐẦU ĐUA</button>
 
                     <div id="start-leaderboard" class="mini-leaderboard">
                         <h3>🏆 BẢNG VÀNG KỶ LỤC</h3>
@@ -114,7 +104,7 @@
             @2026 - EduRobot - Phát triển bởi Lê Thành Long
         </footer>
     </div>
-    <script src="game.js?v=3"></script>
+    <script src="game.js?v=4"></script>
 </body>
 
 </html>
