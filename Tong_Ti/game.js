@@ -8,7 +8,14 @@ canvas.height = 380;
 // --- SUPABASE CONFIG ---
 const supabaseUrl = 'https://khrucxyrvtprykaatcjn.supabase.co';
 const supabaseKey = 'sb_publishable_Nn8HTw3Nxau96UR068_E7g_Mbv3Km66';
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+let supabase = null;
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    }
+} catch (e) {
+    console.error("Supabase Init Error:", e);
+}
 const GAME_ID = 'tong_ti';
 
 // Game State
@@ -489,35 +496,44 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 // --- INITIALIZATION ---
-window.addEventListener('load', () => {
-    console.log("Game Script Loaded & Window Ready");
+function init() {
+    console.log("Initialization started...");
 
+    // Đảm bảo các phần tử tồn tại trước khi gán sự kiện
     const startBtn = document.getElementById('start-btn');
     if (startBtn) {
-        startBtn.addEventListener('click', startGame);
-        console.log("Start button listener attached");
+        startBtn.onclick = startGame; // Dùng trực tiếp onclick để chắc chắn nhất
+        console.log("Start button listener (onclick) assigned");
     }
 
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
-        submitBtn.addEventListener('click', checkAnswer);
+        submitBtn.onclick = checkAnswer;
     }
 
     const restartBtn = document.getElementById('restart-btn');
     if (restartBtn) {
-        restartBtn.addEventListener('click', () => location.reload());
+        restartBtn.onclick = () => location.reload();
     }
 
     // Initialize UI
     updateBestTimePreview();
     showLeaderboard();
-});
+}
+
+if (document.readyState === 'complete') {
+    init();
+} else {
+    window.addEventListener('load', init);
+}
 
 // Make startGame global for onclick fallback
 window.startGame = startGame;
 
 function startGame() {
     console.log("startGame function called");
+    // alert("Hệ thống: Đang khởi động đua..."); // Bỏ comment nếu cần debug trực tiếp
+
     try {
         const nameInputEl = document.getElementById('player-name');
         const classSelectEl = document.getElementById('player-class');
@@ -553,9 +569,11 @@ function startGame() {
         if (state.assets.engineSound) {
             state.assets.engineSound.play().catch(e => console.log("Audio play blocked"));
         }
+
+        console.log("Game started successfully");
     } catch (err) {
         console.error("Lỗi startGame:", err);
-        alert("Có lỗi xảy ra khi bắt đầu game. Hãy thử làm mới trang (F5)!");
+        alert("Lỗi: " + err.message);
     }
 }
 
