@@ -8,8 +8,15 @@ canvas.height = 380;
 // --- SUPABASE CONFIG ---
 const supabaseUrl = 'https://khrucxyrvtprykaatcjn.supabase.co';
 const supabaseKey = 'sb_publishable_Nn8HTw3Nxau96UR068_E7g_Mbv3Km66';
-const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
-const GAME_ID = 'hhcn';
+let supabase = null;
+try {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    }
+} catch (e) {
+    console.error("Supabase Init Error:", e);
+}
+const GAME_ID = 'hhcn_dtxq';
 
 // Game State
 const state = {
@@ -370,8 +377,14 @@ function draw() {
 }
 
 function gameLoop() {
-    update();
-    draw();
+    try {
+        update();
+        draw();
+    } catch (e) {
+        console.error("Game Loop Error:", e);
+        alert("Lỗi game: " + e.message + ". Vui lòng làm mới trang.");
+        return; // Stop requesting animation frames
+    }
     requestAnimationFrame(gameLoop);
 }
 
@@ -449,8 +462,6 @@ function checkAnswer() {
 
 // --- EVENTS ---
 
-// --- EVENTS ---
-
 window.addEventListener('keydown', (e) => {
     if (state.mode === 'DRIVING') {
         if (e.key === 'ArrowUp') userCar.targetY = 120;
@@ -490,31 +501,33 @@ canvas.addEventListener('mousedown', (e) => {
 });
 
 // --- INITIALIZATION ---
-window.addEventListener('load', () => {
-    console.log("Game Script Loaded & Window Ready");
-
+function init() {
+    console.log("Initialization started...");
     const startBtn = document.getElementById('start-btn');
     if (startBtn) {
-        startBtn.addEventListener('click', startGame);
-        console.log("Start button listener attached");
+        startBtn.onclick = startGame;
     }
 
     const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) {
-        submitBtn.addEventListener('click', checkAnswer);
+        submitBtn.onclick = checkAnswer;
     }
 
     const restartBtn = document.getElementById('restart-btn');
     if (restartBtn) {
-        restartBtn.addEventListener('click', () => location.reload());
+        restartBtn.onclick = () => location.reload();
     }
 
-    // Initialize UI
     updateBestTimePreview();
     showLeaderboard();
-});
+}
 
-// Make startGame global for onclick fallback
+if (document.readyState === 'complete') {
+    init();
+} else {
+    window.addEventListener('load', init);
+}
+
 window.startGame = startGame;
 
 function startGame() {
@@ -524,7 +537,7 @@ function startGame() {
         const classSelectEl = document.getElementById('player-class');
 
         if (!nameInputEl || !classSelectEl) {
-            console.error("Missing required input elements");
+            console.error("Missing inputs");
             return;
         }
 
