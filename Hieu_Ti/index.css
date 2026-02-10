@@ -30,15 +30,17 @@ body {
 }
 
 #game-container {
-    width: 1000px;
-    height: 700px;
-    /* Tăng chiều cao để chứa footer gọn gàng */
+    width: 98vw;
+    max-width: 1000px;
+    height: 95vh;
+    max-height: 750px;
     display: flex;
     flex-direction: column;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 20px rgba(255, 204, 0, 0.1);
     border: 1px solid var(--glass-border);
+    position: relative;
 }
 
 
@@ -79,7 +81,9 @@ body {
 /* --- Canvas Area --- */
 #canvas-wrapper {
     position: relative;
-    height: 380px;
+    width: 100%;
+    aspect-ratio: 1000 / 380;
+    max-height: 380px;
     background: #000;
 }
 
@@ -237,9 +241,75 @@ h1 {
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 310px 1fr;
-    gap: 20px;
+    grid-template-columns: 1fr 2fr;
+    gap: 15px;
     height: 100%;
+}
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+    }
+
+    .glass-panel {
+        padding: 20px;
+        width: 90%;
+    }
+
+    .registration-form input,
+    .registration-form select {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        overflow-y: hidden;
+    }
+
+    .quiz-panel {
+        padding: 30px 15px !important;
+        background: rgba(0, 0, 0, 0.95) !important;
+        border-top: 2px solid var(--primary);
+    }
+
+    #question-text {
+        font-size: 1.5rem !important;
+        line-height: 1.4;
+        margin-bottom: 25px;
+    }
+
+    .input-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .input-wrapper input[type="text"] {
+        width: 100% !important;
+        height: 60px;
+        font-size: 1.4rem !important;
+        text-align: center;
+    }
+
+    #submit-btn {
+        width: 100% !important;
+        height: 55px;
+        font-size: 1.2rem;
+    }
+
+    .stat {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+    }
+
+    .main-btn {
+        padding: 10px 30px;
+        font-size: 1rem;
+    }
 }
 
 .panel {
