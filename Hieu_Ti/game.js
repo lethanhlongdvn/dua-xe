@@ -5,6 +5,12 @@ const ctx = canvas.getContext('2d');
 canvas.width = 1000;
 canvas.height = 380;
 
+// --- SUPABASE CONFIG ---
+const supabaseUrl = 'https://khrucxyrvtprykaatcjn.supabase.co';
+const supabaseKey = 'sb_publishable_Nn8HTw3Nxau96UR068_E7g_Mbv3Km66';
+const supabase = window.supabase ? window.supabase.createClient(supabaseUrl, supabaseKey) : null;
+const GAME_ID = 'hieu_ti';
+
 // Game State
 const state = {
     mode: 'START', // START, DRIVING, QUIZ, FINISH
@@ -22,6 +28,8 @@ const state = {
     progress: 0,
     particles: [],
     startTime: 0,
+    gameStartTime: 0,
+    totalTime: 0,
     cruisingDelay: 20000, // 20 seconds
     assets: {
         carImage: new Image(),
@@ -375,6 +383,14 @@ function updateUI() {
     document.getElementById('progress-bar').style.width = `${progressPerc}%`;
     document.getElementById('progress-text').innerText = `${state.currentIdx}/10`;
 
+    // Timer display preview
+    if (state.mode === 'DRIVING' || state.mode === 'QUIZ') {
+        const currentTotal = Math.floor((Date.now() - state.gameStartTime) / 1000);
+        const mins = Math.floor(currentTotal / 60).toString().padStart(2, '0');
+        const secs = (currentTotal % 60).toString().padStart(2, '0');
+        // Update nav preview if desired
+    }
+
     // Cruising Phase HUD Update
     const elapsed = Date.now() - state.startTime;
     const remaining = Math.max(0, Math.ceil((state.cruisingDelay - elapsed) / 1000));
@@ -407,7 +423,14 @@ function checkAnswer() {
 
         if (state.currentIdx >= QUESTIONS.length) {
             state.mode = 'FINISH';
+            state.totalTime = Math.floor((Date.now() - state.gameStartTime) / 1000);
+            saveHighScore(state.totalTime);
+            showLeaderboard();
             document.getElementById('finish-screen').classList.remove('hidden');
+
+            const mins = Math.floor(state.totalTime / 60).toString().padStart(2, '0');
+            const secs = (state.totalTime % 60).toString().padStart(2, '0');
+            document.getElementById('final-time').innerText = `${mins}:${secs}`;
         } else {
             state.mode = 'DRIVING';
         }
@@ -434,8 +457,85 @@ document.getElementById('restart-btn').addEventListener('click', () => location.
 function startGame() {
     state.mode = 'DRIVING';
     state.startTime = Date.now();
+    state.gameStartTime = Date.now();
     document.getElementById('start-screen').classList.add('hidden');
 }
+
+// --- HIGH SCORE LOGIC (ONLINE) ---
+const SCORE_LOCAL_KEY = 'top_scores_hieu_ti';
+
+async function saveHighScore(time) {
+    // 1. Lưu offline
+    let locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+    locals.push(time);
+    locals.sort((a, b) => a - b);
+    localStorage.setItem(SCORE_LOCAL_KEY, JSON.stringify(locals.slice(0, 5)));
+
+    // 2. Lưu online
+    if (supabase) {
+        const playerName = prompt("Chúc mừng! Hãy nhập tên của bạn để lưu kỷ lục:") || "Ẩn danh";
+        const { error } = await supabase
+            .from('high_scores')
+            .insert([{ game_id: GAME_ID, player_name: playerName, score_time: time }]);
+
+        if (error) console.error("Lỗi lưu điểm online:", error);
+        showLeaderboard();
+    }
+}
+
+async function showLeaderboard() {
+    const scoreList = document.getElementById('score-list');
+
+    if (supabase) {
+        const { data, error } = await supabase
+            .from('high_scores')
+            .select('player_name, score_time')
+            .eq('game_id', GAME_ID)
+            .order('score_time', { ascending: true })
+            .limit(5);
+
+        if (!error && data) {
+            scoreList.innerHTML = data.map((s, i) => {
+                const mins = Math.floor(s.score_time / 60).toString().padStart(2, '0');
+                const secs = (Math.floor(s.score_time % 60)).toString().padStart(2, '0');
+                return `<li><span class="rank">#${i + 1} ${s.player_name}</span> <span>${mins}:${secs}</span></li>`;
+            }).join('');
+            return;
+        }
+    }
+
+    const scores = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+    scoreList.innerHTML = scores.map((s, i) => {
+        const mins = Math.floor(s / 60).toString().padStart(2, '0');
+        const secs = (s % 60).toString().padStart(2, '0');
+        return `<li><span class="rank">#${i + 1} Bạn</span> <span>${mins}:${secs}</span></li>`;
+    }).join('');
+}
+
+async function updateBestTimePreview() {
+    let best;
+    if (supabase) {
+        const { data } = await supabase
+            .from('high_scores')
+            .select('score_time')
+            .eq('game_id', GAME_ID)
+            .order('score_time', { ascending: true })
+            .limit(1);
+        if (data && data.length > 0) best = data[0].score_time;
+    }
+
+    if (!best) {
+        const locals = JSON.parse(localStorage.getItem(SCORE_LOCAL_KEY)) || [];
+        if (locals.length > 0) best = locals[0];
+    }
+
+    if (best) {
+        const mins = Math.floor(best / 60).toString().padStart(2, '0');
+        const secs = (Math.floor(best % 60)).toString().padStart(2, '0');
+        document.getElementById('best-time').innerText = `${mins}:${secs}`;
+    }
+}
+updateBestTimePreview();
 
 function drawFireworks() {
     if (Math.random() < 0.1) {
