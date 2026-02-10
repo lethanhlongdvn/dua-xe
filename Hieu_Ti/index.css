@@ -270,15 +270,15 @@ h1 {
     }
 
     .quiz-panel {
-        padding: 30px 15px !important;
+        padding: 15px 12px !important;
         background: rgba(0, 0, 0, 0.95) !important;
         border-top: 2px solid var(--primary);
     }
 
     #question-text {
-        font-size: 1.5rem !important;
-        line-height: 1.4;
-        margin-bottom: 25px;
+        font-size: 1.15rem !important;
+        line-height: 1.3;
+        margin-bottom: 15px;
     }
 
     .input-wrapper {
@@ -288,8 +288,8 @@ h1 {
 
     .input-wrapper input[type="text"] {
         width: 100% !important;
-        height: 60px;
-        font-size: 1.4rem !important;
+        height: 48px;
+        font-size: 1.1rem !important;
         text-align: center;
     }
 
