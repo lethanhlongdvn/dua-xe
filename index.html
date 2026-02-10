@@ -184,7 +184,7 @@
         }
 
         .admin-only {
-            display: none !important;
+            display: none;
         }
     </style>
 </head>
@@ -258,13 +258,20 @@
         document.getElementById('admin-trigger').addEventListener('click', () => {
             footerClicks++;
             if (footerClicks >= 3) {
-                const adminGames = document.querySelectorAll('.admin-only');
-                adminGames.forEach(game => {
-                    game.style.display = 'flex';
-                });
-                // Rung nhẹ để báo hiệu
-                document.getElementById('admin-trigger').style.opacity = "1";
-                document.getElementById('admin-trigger').style.color = "var(--neon-pink)";
+                const password = prompt("Nhập mật khẩu Admin:");
+                if (password === "admin123") {
+                    const adminGames = document.querySelectorAll('.admin-only');
+                    adminGames.forEach(game => {
+                        game.style.display = 'flex';
+                    });
+                    // Rung nhẹ để báo hiệu
+                    document.getElementById('admin-trigger').style.opacity = "1";
+                    document.getElementById('admin-trigger').style.color = "var(--neon-pink)";
+                    alert("🔓 Chế độ Admin đã được kích hoạt!");
+                } else {
+                    alert("❌ Sai mật khẩu quản trị!");
+                    footerClicks = 0; // Reset số lần nhấn
+                }
             }
         });
     </script>
