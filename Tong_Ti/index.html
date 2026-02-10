@@ -29,12 +29,22 @@
             <div id="start-screen" class="overlay">
                 <div class="glass-panel">
                     <h1>ĐUA XE TOÁN HỌC</h1>
-                    <p>Lái xe, tránh chướng ngại vật và giải toán để chiến thắng!</p>
-                    <div class="controls-hint">
-                        <span>⬆️ / ⬇️ Di chuyển</span>
-                        <span>SPACE Bắt đầu</span>
+                    <div class="registration-form">
+                        <input type="text" id="player-name" placeholder="Nhập tên của em..." autocomplete="off">
+                        <select id="player-class">
+                            <option value="" disabled selected>Chọn lớp</option>
+                            <option value="5/1">Lớp 5/1</option>
+                            <option value="5/2">Lớp 5/2</option>
+                            <option value="5/3">Lớp 5/3</option>
+                            <option value="5/4">Lớp 5/4</option>
+                        </select>
                     </div>
                     <button id="start-btn" class="main-btn">BẮT ĐẦU ĐUA</button>
+
+                    <div id="start-leaderboard" class="mini-leaderboard">
+                        <h3>🏆 BẢNG VÀNG KỶ LỤC</h3>
+                        <ul class="score-list-common"></ul>
+                    </div>
                 </div>
             </div>
 
@@ -43,8 +53,8 @@
                     <h1 class="win-title">CHIẾN THẮNG! 🏆</h1>
                     <p>Thời gian của bạn: <span id="final-time" class="highlight">00:00</span></p>
                     <div id="leaderboard">
-                        <h2>🏆 TOP 5 KỶ LỤC</h2>
-                        <ul id="score-list">
+                        <h2>🏆 TOP 10 KỶ LỤC TOÀN KHỐI</h2>
+                        <ul id="score-list" class="score-list-common">
                             <!-- Scores inject here -->
                         </ul>
                     </div>
