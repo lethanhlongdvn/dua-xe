@@ -503,7 +503,6 @@
 
             db.collection("math_leaderboard")
                 .orderBy("score", "desc")
-                .orderBy("timestamp", "asc")
                 .limit(10)
                 .get()
                 .then(snapshot => {
@@ -512,7 +511,7 @@
                 })
                 .catch(error => {
                     console.error("Lỗi khi tải bảng vàng:", error);
-                    document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="4">Không thể tải Bảng Vàng lúc này.</td></tr>`;
+                    document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="4">Lỗi: ${error.message}</td></tr>`;
                 });
         }
 
@@ -552,7 +551,6 @@
 
             db.collection("math_leaderboard")
                 .orderBy("score", "desc")
-                .orderBy("timestamp", "asc")
                 .limit(20)
                 .get()
                 .then(snapshot => {
@@ -561,7 +559,7 @@
                 })
                 .catch(error => {
                     console.error("Lỗi khi tải bảng vàng:", error);
-                    document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Không thể tải Bảng Vàng lúc này.</td></tr>`;
+                    document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Lỗi: ${error.message}</td></tr>`;
                 });
         }
 
