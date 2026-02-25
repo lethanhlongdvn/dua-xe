@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>EduRobot - Siêu Sao Sút Phạt</title>
+    <style>
+        :root {
+            --primary: #00c9a7;
+            --primary-dark: #00a88a;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #eef2f3;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #game-container {
+            width: 800px;
+            height: 800px;
+            background: url('https://img.freepik.com/free-photo/view-empty-soccer-field_23-2151046429.jpg') center/cover;
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        /* Khung thành overlay (giả lập 3D) */
+        .goal-layer {
+            position: absolute;
+            top: 250px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 500px;
+            height: 250px;
+            background: url('https://png.pngtree.com/png-vector/20231016/ourmid/pngtree-3d-football-goal-net-png-image_10162540.png') center/contain no-repeat;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Thủ môn */
+        #goalkeeper {
+            width: 120px;
+            height: 180px;
+            background: url('https://png.pngtree.com/png-vector/20240201/ourmid/pngtree-3d-goalkeeper-jumping-to-catch-a-ball-png-image_11585863.png') center/contain no-repeat;
+            position: absolute;
+            top: 310px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 4;
+        }
+
+        /* Cầu thủ (nhìn từ sau) */
+        #player {
+            width: 200px;
+            height: 280px;
+            background: url('https://png.pngtree.com/png-vector/20240127/ourmid/pngtree-3d-illustration-of-a-soccer-player-character-ready-to-shoot-ball-png-image_11504990.png') center/contain no-repeat;
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.4s ease-out;
+            z-index: 10;
+        }
+
+        /* Quả bóng */
+        #ball {
+            width: 60px;
+            height: 60px;
+            background: url('https://png.pngtree.com/png-clipart/20230113/ourmid/pngtree-3d-football-soccer-ball-png-image_6562215.png') center/contain no-repeat;
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
+            z-index: 11;
+            filter: drop-shadow(0 10px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Bảng điều khiển (UI) */
+        .ui-panel {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 600px;
+            z-index: 100;
+        }
+
+        .question-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        #q-text {
+            font-size: 28px;
+            font-weight: 800;
+            color: #333;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        input {
+            flex-grow: 1;
+            padding: 15px;
+            font-size: 20px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            outline: none;
+            transition: border-color 0.3s;
+            text-align: center;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 15px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 0 var(--primary-dark);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 var(--primary-dark);
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 var(--primary-dark);
+        }
+
+        #msg {
+            position: absolute;
+            top: -60px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.8);
+            transition: opacity 0.3s;
+        }
+
+        /* Animations */
+        .goal-in {
+            bottom: 400px !important;
+            left: 50% !important;
+            transform: translateX(-50%) scale(0.4) rotate(360deg) !important;
+        }
+
+        .goal-miss {
+            bottom: 450px !important;
+            left: 20% !important;
+            transform: translateX(-50%) scale(0.3) rotate(-180deg) !important;
+        }
+
+        .player-kick {
+            transform: translateX(-50%) scale(1.1) rotate(-5deg) !important;
+        }
+
+        /* Brand Logo */
+        .brand {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="game-container">
+        <div class="brand">
+            <img src="https://edurobot.vn/wp-content/uploads/2023/11/logo_edurobot_web_ver2.png" height="30" alt="Logo">
+            <span>EduRobot</span>
+        </div>
+
+        <div class="goal-layer"></div>
+        <div id="goalkeeper"></div>
+        <div id="ball"></div>
+        <div id="player"></div>
+
+        <div class="ui-panel">
+            <div id="msg">Sẵn sàng chưa?</div>
+            <div class="question-card">
+                <span id="q-text">15,3 + 4,2 = ?</span>
+                <input type="number" id="answer" step="0.01" placeholder="Nhập đáp án..." autofocus>
+                <button onclick="checkAnswer()">Sút!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            { q: "12,5 + 7,5", a: 20 },
+            { q: "45,8 - 12,3", a: 33.5 },
+            { q: "8,25 + 1,75", a: 10 },
+            { q: "10 - 3,5", a: 6.5 },
+            { q: "15,5 + 4,5", a: 20 }
+        ];
+
+        let currentQ = 0;
+        let isProcessing = false;
+
+        function checkAnswer() {
+            if (isProcessing) return;
+
+            const answerInput = document.getElementById('answer');
+            const userAnswer = parseFloat(answerInput.value);
+            if (isNaN(userAnswer)) return;
+
+            isProcessing = true;
+            const ball = document.getElementById('ball');
+            const player = document.getElementById('player');
+            const gk = document.getElementById('goalkeeper');
+            const msg = document.getElementById('msg');
+
+            player.classList.add('player-kick');
+
+            setTimeout(() => {
+                if (Math.abs(userAnswer - questions[currentQ].a) < 0.001) {
+                    ball.className = 'goal-in';
+                    gk.style.left = '30%';
+                    msg.innerText = "VÀOOO! Tuyệt quá!";
+                    msg.style.color = "#00c9a7";
+                } else {
+                    ball.className = 'goal-miss';
+                    gk.style.left = '50%';
+                    msg.innerText = "Hụt rồi! Cố gắng lên!";
+                    msg.style.color = "#ff4757";
+                }
+
+                setTimeout(nextQuestion, 2000);
+            }, 300);
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if (currentQ >= questions.length) currentQ = 0;
+
+            const ball = document.getElementById('ball');
+            const player = document.getElementById('player');
+            const gk = document.getElementById('goalkeeper');
+            const answerInput = document.getElementById('answer');
+            const msg = document.getElementById('msg');
+
+            ball.className = '';
+            player.classList.remove('player-kick');
+            gk.style.left = '50%';
+            gk.style.transform = 'translateX(-50%)';
+            answerInput.value = '';
+            msg.innerText = "Tiếp tục nào!";
+            msg.style.color = "#333";
+            document.getElementById('q-text').innerText = questions[currentQ].q + " = ?";
+
+            isProcessing = false;
+            answerInput.focus();
+        }
+
+        // Support Enter key
+        document.getElementById('answer').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Start
+        document.getElementById('q-text').innerText = questions[currentQ].q + " = ?";
+    </script>
+
+</body>
+
+</html>
