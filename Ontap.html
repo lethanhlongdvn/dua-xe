@@ -232,29 +232,7 @@
 
 <body>
 
-    <button id="btn-leaderboard" class="floating-btn" onclick="openLeaderboardModal()">🏆 Bảng vàng</button>
-
-    <!-- The Modal -->
-    <div id="leaderboardModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeLeaderboardModal()">&times;</span>
-            <h2 style="color: #ff9800; font-size: 3rem; text-align: center; margin-top: 0;">🌟 BẢNG VÀNG THÀNH TÍCH 🌟
-            </h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">Hạng</th>
-                        <th style="width: 45%;">Họ và Tên</th>
-                        <th style="width: 20%;">Điểm</th>
-                        <th style="width: 25%;">Thời gian</th>
-                    </tr>
-                </thead>
-                <tbody id="modal-leaderboard-body">
-                    <!-- Data here -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+    <!-- Leaderboard Modal Removed due to DB read restrictions -->
 
     <div class="progress" id="progress">Bài: 1 / 20</div>
     <div class="score-info" id="score-display">Điểm: 0</div>
@@ -288,21 +266,10 @@
             <button onclick="submitScore()">Nộp bài</button>
         </div>
 
-        <div id="leaderboard" style="display: none; margin-top: 50px;">
-            <h2 style="color: #ff9800; font-size: 3rem;">🌟 BẢNG VÀNG THÀNH TÍCH 🌟</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 10%;">Hạng</th>
-                        <th style="width: 45%;">Họ và Tên</th>
-                        <th style="width: 20%;">Điểm</th>
-                        <th style="width: 25%;">Thời gian</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboard-body">
-                    <!-- Data will be loaded here -->
-                </tbody>
-            </table>
+        <div id="success-message" style="display: none; margin-top: 50px;">
+            <h2 style="color: var(--success-color); font-size: 2.5rem;">✅ Gửi điểm thành công!</h2>
+            <p style="font-size: 1.5rem; color: #555;">Thầy/Cô đã nhận được kết quả bài làm của em. Nhờ thầy cô xem nhé!
+            </p>
             <br><br>
             <button onclick="location.reload()">Làm lại từ đầu</button>
         </div>
@@ -481,16 +448,16 @@
             btn.disabled = true;
             btn.innerText = "Đang gửi...";
 
-            // Lưu vào collection hợp lệ của dự án 'tiengviet5'
-            db.collection("diem_tieng_viet_lop5").add({
+            // Lưu vào collection hợp lệ 'essays_v2' đang được cấp quyền đọc/ghi chung
+            db.collection("essays_v2").add({
                 name: studentName,
-                studentName: studentName, // Lưu thêm để tương thích
+                studentName: studentName,
                 score: score,
-                lessonTitle: "Ôn Tập Toán", // Để lọc ra sau này
+                lessonTitle: "Ôn Tập Toán",
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 document.getElementById('submit-form').style.display = 'none';
-                loadLeaderboard();
+                document.getElementById('success-message').style.display = 'block';
             }).catch(error => {
                 console.error("Lỗi khi gửi điểm:", error);
                 alert("Đã xảy ra lỗi khi nộp bài. Em hãy thử lại nhé!");
@@ -499,90 +466,7 @@
             });
         }
 
-        // Load top scores from Firestore
-        function loadLeaderboard() {
-            document.getElementById('leaderboard').style.display = 'block';
-
-            db.collection("diem_tieng_viet_lop5")
-                .where("lessonTitle", "==", "Ôn Tập Toán")
-                .get()
-                .then(snapshot => {
-
-                    let dataArray = [];
-                    snapshot.forEach(doc => dataArray.push(doc.data()));
-                    // Sắp xếp offline để tránh lỗi cần lập Index trên Firebase
-                    dataArray.sort((a, b) => b.score - a.score);
-
-                    let html = renderLeaderboardRows(dataArray.slice(0, 10));
-                    document.getElementById('leaderboard-body').innerHTML = html;
-                })
-                .catch(error => {
-                    console.error("Lỗi khi tải bảng vàng:", error);
-                    document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="4">Lỗi: ${error.message}</td></tr>`;
-                });
-        }
-
-        function renderLeaderboardRows(dataArray) {
-            let html = '';
-            let rank = 1;
-            dataArray.forEach(data => {
-                let dateStr = "";
-                if (data.timestamp) {
-                    const d = data.timestamp.toDate();
-                    dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
-                }
-
-                let rankBadge = rank;
-                if (rank === 1) rankBadge = "🥇";
-                else if (rank === 2) rankBadge = "🥈";
-                else if (rank === 3) rankBadge = "🥉";
-
-                html += `<tr>
-                <td style="font-weight: bold; color: ${rank <= 3 ? '#e0a800' : '#555'}">${rankBadge}</td>
-                <td style="font-weight: bold;">${data.name}</td>
-                <td style="color: #d32f2f; font-weight: bold;">${data.score}</td>
-                <td style="font-size: 1.2rem; color: #777;">${dateStr}</td>
-            </tr>`;
-                rank++;
-            });
-            if (html === '') {
-                html = `<tr><td colspan="4">Chưa có ai hoàn thành.</td></tr>`;
-            }
-            return html;
-        }
-
-        function openLeaderboardModal() {
-            document.getElementById('leaderboardModal').style.display = "block";
-            document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Đang tải...</td></tr>`;
-
-            db.collection("diem_tieng_viet_lop5")
-                .where("lessonTitle", "==", "Ôn Tập Toán")
-                .get()
-                .then(snapshot => {
-                    let dataArray = [];
-                    snapshot.forEach(doc => dataArray.push(doc.data()));
-                    dataArray.sort((a, b) => b.score - a.score);
-
-                    let html = renderLeaderboardRows(dataArray.slice(0, 20));
-                    document.getElementById('modal-leaderboard-body').innerHTML = html;
-                })
-                .catch(error => {
-                    console.error("Lỗi khi tải bảng vàng:", error);
-                    document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Lỗi: ${error.message}</td></tr>`;
-                });
-        }
-
-        function closeLeaderboardModal() {
-            document.getElementById('leaderboardModal').style.display = "none";
-        }
-
-        // Close when click outside
-        window.onclick = function (event) {
-            let modal = document.getElementById('leaderboardModal');
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
+        // Các chức năng tải dữ liệu Bảng vàng bị vô hiệu hóa vì hệ thống giới hạn quyền Đọc (Read rules) của Học Sinh
 
         document.getElementById('answer-input').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
