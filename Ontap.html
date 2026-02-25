@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Toán Lớp 5 - Trình Chiếu Lớp Học</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <style>
+        :root {
+            --text-blue: #0056b3;
+            /* Chữ xanh dương đậm */
+            --button-light-blue: #5bc0de;
+            /* Nút xanh nhạt */
+            --text-white: #ffffff;
+            /* Chữ trắng */
+            --bg-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --error-color: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #quiz-container,
+        #end-screen {
+            width: 90%;
+            max-width: 1300px;
+            background: white;
+            padding: 60px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            border: 2px solid #e1e8ed;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .section-header {
+            font-size: 2.2rem;
+            color: var(--text-blue);
+            margin-bottom: 25px;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-bottom: 5px solid var(--button-light-blue);
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--text-blue);
+            margin: 45px 0;
+            line-height: 1.4;
+        }
+
+        .input-area {
+            margin-top: 50px;
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        input[type="text"] {
+            font-size: 2.8rem;
+            padding: 20px;
+            width: 400px;
+            border: 6px solid #dee2e6;
+            border-radius: 20px;
+            text-align: center;
+            outline: none;
+            color: #333;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--button-light-blue);
+        }
+
+        button {
+            font-size: 2.2rem;
+            padding: 20px 50px;
+            cursor: pointer;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            background-color: var(--button-light-blue);
+            color: var(--text-white);
+            transition: transform 0.2s, background-color 0.3s;
+            box-shadow: 0 6px 0 #39a0bc;
+            margin: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .btn-warning {
+            background-color: var(--warning-color);
+            box-shadow: 0 6px 0 #d39e00;
+            color: #333;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            box-shadow: 0 6px 0 #bd2130;
+        }
+
+        .btn-next {
+            background-color: var(--success-color);
+            box-shadow: 0 6px 0 #1e7e34;
+            margin-top: 30px;
+            display: none;
+        }
+
+        #feedback {
+            font-size: 2.8rem;
+            margin-top: 40px;
+            min-height: 70px;
+            font-weight: bold;
+        }
+
+        .progress {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            font-size: 1.8rem;
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        .score-info {
+            position: absolute;
+            top: 70px;
+            right: 40px;
+            font-size: 2rem;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        /* Leaderboard styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.5rem;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border-bottom: 2px solid #ddd;
+            padding: 15px;
+            text-align: center;
+        }
+
+        th {
+            background-color: var(--button-light-blue);
+            color: white;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .floating-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            background-color: var(--warning-color);
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            margin: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border: none;
+            width: 90%;
+            max-width: 900px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 3rem;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #d32f2f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button id="btn-leaderboard" class="floating-btn" onclick="openLeaderboardModal()">🏆 Bảng vàng</button>
+
+    <!-- The Modal -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLeaderboardModal()">&times;</span>
+            <h2 style="color: #ff9800; font-size: 3rem; text-align: center; margin-top: 0;">🌟 BẢNG VÀNG THÀNH TÍCH 🌟
+            </h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Hạng</th>
+                        <th style="width: 45%;">Họ và Tên</th>
+                        <th style="width: 20%;">Điểm</th>
+                        <th style="width: 25%;">Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody id="modal-leaderboard-body">
+                    <!-- Data here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="progress" id="progress">Bài: 1 / 20</div>
+    <div class="score-info" id="score-display">Điểm: 0</div>
+
+    <div id="quiz-container">
+        <div id="section-name" class="section-header">HÌNH LẬP PHƯƠNG</div>
+        <div id="question" class="question-text">Đang tải...</div>
+
+        <div class="input-area">
+            <input type="text" id="answer-input" placeholder="Nhập số..." autocomplete="off">
+        </div>
+
+        <div class="action-buttons" style="margin-top: 30px;">
+            <button id="btn-check" onclick="checkAnswer()">Kiểm tra</button>
+            <button id="btn-retry" class="btn-warning" style="display: none;" onclick="resetInput()">Làm lại</button>
+            <button id="btn-skip" class="btn-danger" style="display: none;" onclick="skipQuestion()">Bỏ qua</button>
+        </div>
+
+        <div id="feedback"></div>
+        <button id="next-btn" class="btn-next" onclick="nextQuestion()">Chính xác! Sang bài tiếp theo ➜</button>
+    </div>
+
+    <!-- End screen & Leaderboard -->
+    <div id="end-screen" style="display: none;">
+        <h1 style="color: var(--text-blue); font-size: 4rem;">🏆 HOÀN THÀNH BÀI ÔN TẬP!</h1>
+        <h2 style="font-size: 3rem; color: #d32f2f;">Tổng điểm của em: <span id="final-score"></span> / 100</h2>
+
+        <div id="submit-form" style="margin-top: 40px;">
+            <input type="text" id="student-name" placeholder="Nhập tên của em..."
+                style="width: 500px; display: inline-block;">
+            <button onclick="submitScore()">Nộp bài</button>
+        </div>
+
+        <div id="leaderboard" style="display: none; margin-top: 50px;">
+            <h2 style="color: #ff9800; font-size: 3rem;">🌟 BẢNG VÀNG THÀNH TÍCH 🌟</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">Hạng</th>
+                        <th style="width: 45%;">Họ và Tên</th>
+                        <th style="width: 20%;">Điểm</th>
+                        <th style="width: 25%;">Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+            <br><br>
+            <button onclick="location.reload()">Làm lại từ đầu</button>
+        </div>
+    </div>
+
+    <audio id="sound-success" src="https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3"></audio>
+
+    <script>
+        // 1. Firebase Configuration (Từ dự án tiengviet5)
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6zlWn8BKYU7P6A2-PYq6IIWOzaqJWFhc",
+            authDomain: "gamhoctap.firebaseapp.com",
+            projectId: "gamhoctap",
+            storageBucket: "gamhoctap.firebasestorage.app",
+            messagingSenderId: "833329613932",
+            appId: "1:833329613932:web:0d8574827bcfe50b535c49"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        // 2. Data
+        const originalData = [
+            { section: "HÌNH LẬP PHƯƠNG", q: "Tính diện tích xung quanh của hình lập phương có cạnh dài 5 cm.", a: "100" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Tính diện tích toàn phần của hình lập phương có cạnh dài 8 dm.", a: "384" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Một hình lập phương có cạnh 1,2 m. Diện tích xung quanh là bao nhiêu m²?", a: "5.76" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Diện tích toàn phần của hình lập phương có cạnh 2/5 m là bao nhiêu m²?", a: "0.96" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Một hình lập phương có diện tích xung quanh là 64 cm². Tính độ dài cạnh.", a: "4" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Diện tích toàn phần của một hình lập phương là 150 dm². Hỏi cạnh dài bao nhiêu?", a: "5" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Hộp không nắp hình lập phương cạnh 15 cm. Tính diện tích bìa cần dùng.", a: "1125" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Sơn mặt ngoài thùng gỗ hình lập phương cạnh 2 m. Giá 50.000đ/m². Tính tổng tiền.", a: "1200000" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Một hình lập phương có tổng độ dài các cạnh là 36 cm. Tính diện tích toàn phần.", a: "54" },
+            { section: "HÌNH LẬP PHƯƠNG", q: "Nếu gấp cạnh hình lập phương lên 3 lần thì diện tích xung quanh gấp lên mấy lần?", a: "9" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Tính diện tích xung quanh: dài 8cm, rộng 5cm, cao 4cm.", a: "104" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Tính diện tích toàn phần: dài 10dm, rộng 6dm, cao 5dm.", a: "280" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Khúc gỗ dài 1,5m, rộng 1,2m, cao 0,8m. Tính thể tích (m³).", a: "1.44" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Bể cá không nắp: dài 80cm, rộng 50cm, cao 40cm. Tính diện tích kính (cm²).", a: "14400" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Phòng dài 6m, rộng 4,5m, cao 3m. Quét sơn trần và tường, trừ cửa 8m². Tính diện tích sơn.", a: "82" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Hình hộp có thể tích 120 cm³, diện tích đáy 24 cm². Tính chiều cao.", a: "5" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Diện tích xung quanh 140 dm², cao 5dm, dài 8dm. Tính chiều rộng.", a: "6" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Chu vi đáy 30 cm, chiều cao 6 cm. Tính diện tích xung quanh (cm²).", a: "180" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Bể nước 1,2m x 0,8m x 0,5m. Bể chứa được bao nhiêu lít nước?", a: "480" },
+            { section: "HÌNH HỘP CHỮ NHẬT", q: "Tăng các kích thước hình hộp chữ nhật lên 2 lần thì thể tích tăng mấy lần?", a: "8" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Tìm tỉ số phần trăm của 15 và 40.", a: "37.5" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Tìm tỉ số phần trăm của 24 và 150.", a: "16" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Tìm tỉ số phần trăm của 1,2 và 2,5.", a: "48" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Lớp 40 học sinh, có 18 nữ. Số học sinh nữ chiếm bao nhiêu %?", a: "45" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Trại có 500 con gà, có 120 con gà trống. Tìm tỉ số % gà trống.", a: "24" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Nhập 200kg gạo, đã bán 65kg. Đã bán được bao nhiêu %?", a: "32.5" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Phơi 45 tấn nước biển được 1,8 tấn muối. Tỉ lệ muối là bao nhiêu %?", a: "4" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Vườn có 120 cây, 102 cây sống. Tỉ lệ cây sống là bao nhiêu %?", a: "85" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Dự định 800 áo, thực tế may 1000 áo. Xưởng đạt bao nhiêu % kế hoạch?", a: "125" },
+            { section: "TỈ SỐ PHẦN TRĂM", q: "Vốn 50.000đ, bán 60.000đ. Tiền lãi bằng bao nhiêu % tiền vốn?", a: "20" },
+            { section: "TÌM GIÁ TRỊ %", q: "Tìm 15% của 320.", a: "48" },
+            { section: "TÌM GIÁ TRỊ %", q: "Tìm 4,5% của 200 kg.", a: "9" },
+            { section: "TÌM GIÁ TRỊ %", q: "Tìm 60% của 45 lít.", a: "27" },
+            { section: "TÌM GIÁ TRỊ %", q: "Tivi 8.000.000đ giảm giá 10%. Khách hàng được giảm bao nhiêu tiền?", a: "800000" },
+            { section: "TÌM GIÁ TRỊ %", q: "Trường có 800 học sinh, 45% đạt xuất sắc. Có bao nhiêu em xuất sắc?", a: "360" },
+            { section: "TÌM GIÁ TRỊ %", q: "Gửi 50 triệu, lãi suất 6%/năm. Sau 1 năm nhận bao nhiêu tiền lãi?", a: "3000000" },
+            { section: "TÌM GIÁ TRỊ %", q: "Khu đất 1500 m², dùng 35% diện tích làm nhà. Tính diện tích làm nhà.", a: "525" },
+            { section: "TÌM GIÁ TRỊ %", q: "Lương 12 triệu, chi tiêu hết 75%. Mỗi tháng chi tiêu bao nhiêu tiền?", a: "9000000" },
+            { section: "TÌM GIÁ TRỊ %", q: "Tỉ lệ đạm trong thịt bò là 18%. Trong 400g thịt bò có bao nhiêu gam đạm?", a: "72" },
+            { section: "TÌM GIÁ TRỊ %", q: "Đoạn đường 60km, đã trải nhựa 25%. Đoạn đường đã trải nhựa dài bao nhiêu km?", a: "15" }
+        ];
+
+        let quizData = [];
+
+        // Select exactly 5 random questions for each of the 4 sections
+        const sections = [...new Set(originalData.map(item => item.section))];
+        sections.forEach(sec => {
+            let secData = originalData.filter(item => item.section === sec);
+            secData.sort(() => 0.5 - Math.random());
+            quizData = quizData.concat(secData.slice(0, 5));
+        });
+
+        let currentIdx = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const item = quizData[currentIdx];
+            document.getElementById('section-name').innerText = item.section;
+            document.getElementById('question').innerText = item.q;
+            document.getElementById('progress').innerText = `Bài: ${currentIdx + 1} / ${quizData.length}`;
+            document.getElementById('score-display').innerText = `Điểm: ${score}`;
+
+            document.getElementById('answer-input').value = "";
+            document.getElementById('feedback').innerText = "";
+
+            document.getElementById('next-btn').style.display = "none";
+            document.getElementById('btn-check').style.display = "inline-block";
+            document.getElementById('btn-retry').style.display = "none";
+            document.getElementById('btn-skip').style.display = "none";
+
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('answer-input').focus();
+        }
+
+        function checkAnswer() {
+            const input = document.getElementById('answer-input').value.replace(',', '.').trim();
+            const correct = quizData[currentIdx].a;
+            const feedback = document.getElementById('feedback');
+
+            if (input === "") return;
+
+            if (parseFloat(input) === parseFloat(correct)) {
+                // Đúng
+                score += 5;
+                document.getElementById('score-display').innerText = `Điểm: ${score}`;
+                feedback.innerHTML = "<span style='color: var(--success-color)'>CHÚC MỪNG EM! ĐÚNG RỒI! 👏 (Vỗ tay) 🎉</span>";
+
+                document.getElementById('btn-check').style.display = "none";
+                document.getElementById('btn-retry').style.display = "none";
+                document.getElementById('btn-skip').style.display = "none";
+
+                document.getElementById('next-btn').style.display = "inline-block";
+                document.getElementById('answer-input').disabled = true;
+
+                // Hiệu ứng chúc mừng, vỗ tay
+                confetti({ particleCount: 200, spread: 130, origin: { y: 0.6 } });
+                document.getElementById('sound-success').play();
+            } else {
+                // Sai
+                feedback.innerHTML = "<span style='color: var(--error-color)'>SAI RỒI! Hãy chọn Làm lại hoặc Bỏ qua nhé. ❌</span>";
+                document.getElementById('btn-check').style.display = "none";
+                document.getElementById('btn-retry').style.display = "inline-block";
+                document.getElementById('btn-skip').style.display = "inline-block";
+                document.getElementById('answer-input').disabled = true;
+            }
+        }
+
+        function resetInput() {
+            document.getElementById('answer-input').value = "";
+            document.getElementById('feedback').innerText = "";
+            document.getElementById('answer-input').disabled = false;
+            document.getElementById('answer-input').focus();
+
+            document.getElementById('btn-check').style.display = "inline-block";
+            document.getElementById('btn-retry').style.display = "none";
+            document.getElementById('btn-skip').style.display = "none";
+        }
+
+        function skipQuestion() {
+            // Bỏ qua không cộng điểm
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentIdx < quizData.length - 1) {
+                currentIdx++;
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('progress').style.display = 'none';
+            document.getElementById('score-display').style.display = 'none';
+            document.getElementById('quiz-container').style.display = 'none';
+
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
+        }
+
+        // Submit score to Firebase Firestore
+        function submitScore() {
+            const studentName = document.getElementById('student-name').value.trim();
+            if (!studentName) {
+                alert("Em vui lòng nhập tên trước khi nộp bài nhé!");
+                return;
+            }
+
+            const btn = document.querySelector('#submit-form button');
+            btn.disabled = true;
+            btn.innerText = "Đang gửi...";
+
+            // Lưu vào collection 'math_leaderboard'
+            db.collection("math_leaderboard").add({
+                name: studentName,
+                score: score,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('submit-form').style.display = 'none';
+                loadLeaderboard();
+            }).catch(error => {
+                console.error("Lỗi khi gửi điểm:", error);
+                alert("Đã xảy ra lỗi khi nộp bài. Em hãy thử lại nhé!");
+                btn.disabled = false;
+                btn.innerText = "Nộp bài";
+            });
+        }
+
+        // Load top scores from Firestore
+        function loadLeaderboard() {
+            document.getElementById('leaderboard').style.display = 'block';
+
+            db.collection("math_leaderboard")
+                .orderBy("score", "desc")
+                .orderBy("timestamp", "asc")
+                .limit(10)
+                .get()
+                .then(snapshot => {
+                    let html = renderLeaderboardRows(snapshot);
+                    document.getElementById('leaderboard-body').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error("Lỗi khi tải bảng vàng:", error);
+                    document.getElementById('leaderboard-body').innerHTML = `<tr><td colspan="4">Không thể tải Bảng Vàng lúc này.</td></tr>`;
+                });
+        }
+
+        function renderLeaderboardRows(snapshot) {
+            let html = '';
+            let rank = 1;
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                let dateStr = "";
+                if (data.timestamp) {
+                    const d = data.timestamp.toDate();
+                    dateStr = d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN');
+                }
+
+                let rankBadge = rank;
+                if (rank === 1) rankBadge = "🥇";
+                else if (rank === 2) rankBadge = "🥈";
+                else if (rank === 3) rankBadge = "🥉";
+
+                html += `<tr>
+                <td style="font-weight: bold; color: ${rank <= 3 ? '#e0a800' : '#555'}">${rankBadge}</td>
+                <td style="font-weight: bold;">${data.name}</td>
+                <td style="color: #d32f2f; font-weight: bold;">${data.score}</td>
+                <td style="font-size: 1.2rem; color: #777;">${dateStr}</td>
+            </tr>`;
+                rank++;
+            });
+            if (html === '') {
+                html = `<tr><td colspan="4">Chưa có ai hoàn thành.</td></tr>`;
+            }
+            return html;
+        }
+
+        function openLeaderboardModal() {
+            document.getElementById('leaderboardModal').style.display = "block";
+            document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Đang tải...</td></tr>`;
+
+            db.collection("math_leaderboard")
+                .orderBy("score", "desc")
+                .orderBy("timestamp", "asc")
+                .limit(20)
+                .get()
+                .then(snapshot => {
+                    let html = renderLeaderboardRows(snapshot);
+                    document.getElementById('modal-leaderboard-body').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error("Lỗi khi tải bảng vàng:", error);
+                    document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Không thể tải Bảng Vàng lúc này.</td></tr>`;
+                });
+        }
+
+        function closeLeaderboardModal() {
+            document.getElementById('leaderboardModal').style.display = "none";
+        }
+
+        // Close when click outside
+        window.onclick = function (event) {
+            let modal = document.getElementById('leaderboardModal');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        document.getElementById('answer-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                if (document.getElementById('btn-check').style.display !== 'none') {
+                    checkAnswer();
+                }
+            }
+        });
+
+        document.getElementById('student-name').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                submitScore();
+            }
+        });
+
+        // Start
+        loadQuestion();
+    </script>
+</body>
+
+</html>
