@@ -481,10 +481,12 @@
             btn.disabled = true;
             btn.innerText = "Đang gửi...";
 
-            // Lưu vào collection 'math_leaderboard'
-            db.collection("math_leaderboard").add({
+            // Lưu vào collection hợp lệ của dự án 'tiengviet5'
+            db.collection("diem_tieng_viet_lop5").add({
                 name: studentName,
+                studentName: studentName, // Lưu thêm để tương thích
                 score: score,
+                lessonTitle: "Ôn Tập Toán", // Để lọc ra sau này
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 document.getElementById('submit-form').style.display = 'none';
@@ -501,12 +503,17 @@
         function loadLeaderboard() {
             document.getElementById('leaderboard').style.display = 'block';
 
-            db.collection("math_leaderboard")
-                .orderBy("score", "desc")
-                .limit(10)
+            db.collection("diem_tieng_viet_lop5")
+                .where("lessonTitle", "==", "Ôn Tập Toán")
                 .get()
                 .then(snapshot => {
-                    let html = renderLeaderboardRows(snapshot);
+
+                    let dataArray = [];
+                    snapshot.forEach(doc => dataArray.push(doc.data()));
+                    // Sắp xếp offline để tránh lỗi cần lập Index trên Firebase
+                    dataArray.sort((a, b) => b.score - a.score);
+
+                    let html = renderLeaderboardRows(dataArray.slice(0, 10));
                     document.getElementById('leaderboard-body').innerHTML = html;
                 })
                 .catch(error => {
@@ -515,11 +522,10 @@
                 });
         }
 
-        function renderLeaderboardRows(snapshot) {
+        function renderLeaderboardRows(dataArray) {
             let html = '';
             let rank = 1;
-            snapshot.forEach(doc => {
-                const data = doc.data();
+            dataArray.forEach(data => {
                 let dateStr = "";
                 if (data.timestamp) {
                     const d = data.timestamp.toDate();
@@ -549,12 +555,15 @@
             document.getElementById('leaderboardModal').style.display = "block";
             document.getElementById('modal-leaderboard-body').innerHTML = `<tr><td colspan="4">Đang tải...</td></tr>`;
 
-            db.collection("math_leaderboard")
-                .orderBy("score", "desc")
-                .limit(20)
+            db.collection("diem_tieng_viet_lop5")
+                .where("lessonTitle", "==", "Ôn Tập Toán")
                 .get()
                 .then(snapshot => {
-                    let html = renderLeaderboardRows(snapshot);
+                    let dataArray = [];
+                    snapshot.forEach(doc => dataArray.push(doc.data()));
+                    dataArray.sort((a, b) => b.score - a.score);
+
+                    let html = renderLeaderboardRows(dataArray.slice(0, 20));
                     document.getElementById('modal-leaderboard-body').innerHTML = html;
                 })
                 .catch(error => {
